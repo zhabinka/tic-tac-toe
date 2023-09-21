@@ -1,6 +1,7 @@
 defmodule TicTacToe.Model do
   @type sign() :: :cross | :zero
-  @type field() :: nonempty_list()
+  @type battle_field() :: nonempty_list()
+  @type session_status() :: :wait_opponent | :game_on | :game_off | :game_over
 
   defmodule Player do
     @type t() :: %__MODULE__{
@@ -11,22 +12,24 @@ defmodule TicTacToe.Model do
     defstruct [:id, :name, :sign]
   end
 
-  defmodule BattleField do
-    @type t() :: %__MODULE__{
-            id: pos_integer(),
-            field: Model.field()
-          }
-    defstruct [:id, :field]
-  end
-
-  defmodule Game do
+  defmodule Battle do
     @type t() :: %__MODULE__{
             id: pos_integer(),
             players: [Player.t()],
-            battle_field: BattleField.t(),
+            field: Model.battle_field(),
             turn_of_the_move: Player.t(),
             winner: Player.t()
           }
-    defstruct [:id, :players, :battle_field, :turn_of_the_move, :winner]
+    defstruct [:id, :players, :field, :turn_of_the_move, :winner]
+  end
+
+  defmodule Session do
+    @type t() :: %__MODULE__{
+            id: pos_integer(),
+            battle: Battle.t(),
+            has_opponent: true | false,
+            status: Model.session_status()
+          }
+    defstruct [:id, :battle, :has_opponent, :status]
   end
 end

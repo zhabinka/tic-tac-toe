@@ -23,7 +23,7 @@ defmodule TicTacToe.Game do
     end
   end
 
-  defmodule Sup do
+  defmodule BattleSup do
     use DynamicSupervisor
 
     @sup_name :battle_sup
@@ -77,7 +77,7 @@ defmodule TicTacToe.Game do
 
     @impl true
     def handle_call({:start_room, battle_id}, _from, %{battles: battles} = state) do
-      {:ok, _} = Sup.start_battle(battle_id)
+      {:ok, _} = BattleSup.start_battle(battle_id)
       state = %{state | battles: [battle_id | battles]}
       Logger.info("BattleManager has started battle #{battle_id}, state #{inspect(state)}")
       {:reply, :ok, state}

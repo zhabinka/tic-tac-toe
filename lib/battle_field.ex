@@ -40,13 +40,6 @@ defmodule TicTacToe.Game do
       DynamicSupervisor.start_child(@sup_name, child_spec)
     end
 
-    def find_battle(battle_id) do
-      case Registry.lookup(@registry_name, battle_id) do
-        [{pid, _}] -> {:ok, pid}
-        [] -> {:error, :not_found}
-      end
-    end
-
     @impl true
     def init(_) do
       Logger.info("#{@sup_name} has started from #{inspect(self())}")
@@ -63,6 +56,14 @@ defmodule TicTacToe.Game do
 
     def start_battle(battle_id) do
       GenServer.call(__MODULE__, {:start_room, battle_id})
+    end
+
+    # NOTE: Как сделать общее имя хранилища для разных модулей?
+    def find_battle(battle_id) do
+      case Registry.lookup(:battle_registry, battle_id) do
+        [{pid, _}] -> {:ok, pid}
+        [] -> {:error, :not_found}
+      end
     end
 
     @impl true

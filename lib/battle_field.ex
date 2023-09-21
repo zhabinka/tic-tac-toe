@@ -46,4 +46,22 @@ defmodule TicTacToe.Game do
       DynamicSupervisor.init(strategy: :one_for_one)
     end
   end
+
+  defmodule BattleManager do
+    use GenServer
+
+    def start_link(_) do
+      GenServer.start_link(__MODULE__, :no_args, name: __MODULE__)
+    end
+
+    @impl true
+    def init(_) do
+      state = %{
+        battles: []
+      }
+
+      Logger.info("BattleManager has started with state #{inspect(state)}")
+      {:ok, state}
+    end
+  end
 end

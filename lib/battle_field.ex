@@ -22,4 +22,22 @@ defmodule TicTacToe.Game do
       {:ok, state}
     end
   end
+
+  defmodule Sup do
+    use DynamicSupervisor
+
+    @sup_name :battle_sup
+    @registry_name :battle_registry
+
+    def start_link(_) do
+      Registry.start_link(keys: :unique, name: @registry_name)
+      DynamicSupervisor.start_link(__MODULE__, :no_args, name: @sup_name)
+    end
+
+    @impl true
+    def init(_) do
+      Logger.info("#{@sup_name} has started from #{inspect(self())}")
+      DynamicSupervisor.init(strategy: :one_for_one)
+    end
+  end
 end

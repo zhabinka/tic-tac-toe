@@ -31,6 +31,7 @@ defmodule TicTacToe do
       child_spec = [
         {TicTacToe.Game.BattleSup, :no_args},
         {TicTacToe.Game.BattleManager, :no_args},
+        {TicTacToe.Sessions.SessionSup, :no_args},
         {TicTacToe.Sessions.SessionManager, {port, pool_size}}
       ]
 

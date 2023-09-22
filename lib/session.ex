@@ -42,7 +42,13 @@ defmodule TicTacToe.Sessions do
       case :gen_tcp.recv(state.socket, 0, 30_000) do
         {:ok, data} ->
           Logger.info("Session #{state.session_id} got data #{data}")
-          :gen_tcp.send(state.socket, "OK\n")
+
+          response =
+            data
+            |> String.trim_trailing()
+            |> handle_request()
+
+          :gen_tcp.send(state.socket, response <> "\n")
           {:noreply, state, {:continue, :receive_data}}
 
         {:error, :timeout} ->
@@ -53,6 +59,19 @@ defmodule TicTacToe.Sessions do
           Logger.warning("Session #{state.session_id} has got error #{inspect(error)}")
           :gen_tcp.close(state.socket)
           {:noreply, state, {:continue, :waiting_for_client}}
+      end
+    end
+
+    def handle_request(request) do
+      alias TicTacToe.Protocol
+
+      case Protocol.deserialize(request) do
+        {:error, error} ->
+          Protocol.serialize({:error, error})
+
+        event ->
+          Logger.info("Event: #{inspect(event)}")
+          Protocol.serialize(:ok)
       end
     end
   end

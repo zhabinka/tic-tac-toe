@@ -1,13 +1,4 @@
 defmodule TicTacToe do
-  @moduledoc """
-  sup tree:
-  - RootSup
-    - PlayersMatcher
-    - GamesSup
-      - Game 1
-      - Game 2
-      - ...
-  """
   use Application
   require Logger
 
@@ -29,10 +20,10 @@ defmodule TicTacToe do
       pool_size = 5
 
       child_spec = [
-        {TicTacToe.Game.BattleSup, :no_args},
-        {TicTacToe.Game.BattleManager, :no_args},
-        {TicTacToe.Sessions.SessionSup, :no_args},
-        {TicTacToe.Sessions.SessionManager, {port, pool_size}}
+        {TicTacToe.BattleSup, :no_args},
+        {TicTacToe.BattleManager, :no_args},
+        {TicTacToe.SessionSup, :no_args},
+        {TicTacToe.SessionManager, {port, pool_size}}
       ]
 
       Logger.info("RootSup start")

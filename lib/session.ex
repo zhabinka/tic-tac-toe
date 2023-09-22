@@ -29,4 +29,27 @@ defmodule TicTacToe.Sessions do
       {:ok, state}
     end
   end
+
+  defmodule SessionManager do
+    use GenServer
+
+    defmodule State do
+      defstruct [
+        :port,
+        :pool_size,
+        :listening_socket
+      ]
+    end
+
+    def start_link({port, pool_size}) do
+      GenServer.start_link(__MODULE__, {port, pool_size})
+    end
+
+    @impl true
+    def init({port, pool_size}) do
+      state = %State{port: port, pool_size: pool_size}
+      Logger.info("SessionManager has started with #{inspect(state)}")
+      {:ok, state}
+    end
+  end
 end

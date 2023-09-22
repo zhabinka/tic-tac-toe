@@ -25,9 +25,13 @@ defmodule TicTacToe do
 
     @impl true
     def init(_) do
+      port = 3000
+      pool_size = 5
+
       child_spec = [
         {TicTacToe.Game.BattleSup, :no_args},
-        {TicTacToe.Game.BattleManager, :no_args}
+        {TicTacToe.Game.BattleManager, :no_args},
+        {TicTacToe.Sessions.SessionManager, {port, pool_size}}
       ]
 
       Logger.info("RootSup start")

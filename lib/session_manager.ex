@@ -34,6 +34,7 @@ defmodule TicTacToe.SessionManager do
 
     1..state.pool_size
     |> Enum.each(fn session_id ->
+      # session_id = UUID.uuid1()
       TicTacToe.SessionSup.start_acceptor(session_id, listening_socket)
     end)
 

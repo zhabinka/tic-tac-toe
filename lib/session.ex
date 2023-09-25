@@ -7,7 +7,9 @@ defmodule TicTacToe.Session do
       :session_id,
       :listening_socket,
       :socket,
-      :user
+      :user,
+      :battle_pid,
+      :has_opponent
     ]
   end
 
@@ -20,7 +22,9 @@ defmodule TicTacToe.Session do
     # battle = TicTacToe.Game.BattleManager.start_battle(session_id)
     state = %State{
       session_id: session_id,
-      listening_socket: listening_socket
+      listening_socket: listening_socket,
+      battle_pid: nil,
+      has_opponent: false
     }
 
     Logger.info("Session #{session_id} has started, state #{inspect(state)}")

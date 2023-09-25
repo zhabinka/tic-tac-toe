@@ -13,7 +13,7 @@ defmodule TicTacToe.Battle do
       id: battle_id,
       players: [],
       field: [["", "", ""], ["", "", ""], ["", "", ""]],
-      turn_of_the_move: nil,
+      current_move: nil,
       winner: nil
     }
 

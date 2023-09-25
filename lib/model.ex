@@ -1,8 +1,11 @@
 defmodule TicTacToe.Model do
   @type user_role() :: :user | :players
-  @type sign() :: :cross | :zero
-  @type battle_field() :: nonempty_list()
   @type battle_status() :: :wait_opponent | :game_on | :game_off | :game_over
+
+  @type sign() :: :cross | :zero
+  @type cell() :: sign() | nil
+  @type row() :: {cell(), cell(), cell()}
+  @type battle_field() :: {row(), row(), row()}
 
   defmodule User do
     @type t() :: %__MODULE__{

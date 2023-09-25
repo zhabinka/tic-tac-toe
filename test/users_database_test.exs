@@ -14,8 +14,8 @@ defmodule TicTacToeTest do
 
   test "find user by name" do
     users = get_users()
-    assert UsersDatabase.get_by_name("Alex", users) == {:ok, List.first(users)}
-    assert UsersDatabase.get_by_name("anna", users) == {:ok, List.last(users)}
-    assert UsersDatabase.get_by_name("Helen") == {:error, :not_found}
+    assert UsersDatabase.find_by_name("Alex", users) == {:ok, List.first(users)}
+    assert UsersDatabase.find_by_name("anna", users) == {:ok, List.last(users)}
+    assert UsersDatabase.find_by_name("Helen") == {:error, :not_found}
   end
 end

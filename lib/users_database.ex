@@ -11,7 +11,7 @@ defmodule TicTacToe.UsersDatabase do
     ]
   end
 
-  def get_by_name(name, users \\ get_users()) do
+  def find_by_name(name, users \\ get_users()) do
     users
     |> Enum.filter(fn user -> String.capitalize(name) == user.name end)
     |> case do

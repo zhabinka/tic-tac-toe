@@ -1,8 +1,7 @@
 defmodule TicTacToe.Protocol do
   require Logger
 
-  def deserialize("hello"), do: :ok
-  def deserialize("login" <> name), do: {:login, name}
+  def deserialize("hello"), do: :hello
   def deserialize("play"), do: :play
 
   # Catch all
@@ -15,4 +14,5 @@ defmodule TicTacToe.Protocol do
   def serialize({:play, battle}), do: "The game has started, #{inspect(battle)}"
   def serialize(:ok), do: "OK"
   def serialize({:error, error}), do: "ERROR: #{inspect(error)}"
+  def serialize(:hi), do: "Hi!"
 end

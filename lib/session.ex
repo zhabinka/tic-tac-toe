@@ -41,10 +41,10 @@ defmodule TicTacToe.Session do
       {:ok, data} ->
         Logger.info("Session #{state.session_id} got data #{data}")
 
-        response =
+        {response, state} =
           data
           |> String.trim_trailing()
-          |> handle_request()
+          |> handle_request(state)
 
         :gen_tcp.send(state.socket, response <> "\n")
         {:noreply, state, {:continue, :receive_data}}
@@ -60,16 +60,21 @@ defmodule TicTacToe.Session do
     end
   end
 
-  def handle_request(request) do
+  def handle_request(request, state) do
     alias TicTacToe.Protocol
 
     case Protocol.deserialize(request) do
       {:error, error} ->
-        Protocol.serialize({:error, error})
+        {Protocol.serialize({:error, error}), state}
 
       event ->
-        Logger.info("Event: #{inspect(event)}")
-        Protocol.serialize(:ok)
+        {result, state} = handle_event(event, state)
+        Logger.info("Event: #{inspect(event)}, #{inspect state}")
+        {Protocol.serialize(result), state}
     end
+  end
+
+  def handle_event(:hello, state) do
+    {:hi, state}
   end
 end

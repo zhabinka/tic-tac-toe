@@ -2,6 +2,7 @@ defmodule TicTacToe.Protocol do
   require Logger
 
   def deserialize("hello"), do: :hello
+  def deserialize("login " <> name), do: {:login, name}
   def deserialize("play"), do: :play
 
   # Catch all

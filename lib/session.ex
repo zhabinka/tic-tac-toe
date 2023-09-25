@@ -77,4 +77,17 @@ defmodule TicTacToe.Session do
   def handle_event(:hello, state) do
     {:hi, state}
   end
+
+  def handle_event({:login, name}, state) do
+    case TicTacToe.UsersDatabase.find_by_name(name) do
+    {:ok, user} ->
+        Logger.info("Auth user #{inspect user}")
+        state = %State{state | user: user}
+        {:ok, state}
+
+      {:error, :not_found} ->
+        Logger.warning("User #{name} auth error")
+        {{:error, :invalid_auth}, state}
+    end
+  end
 end

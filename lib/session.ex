@@ -69,7 +69,7 @@ defmodule TicTacToe.Session do
 
       event ->
         {result, state} = handle_event(event, state)
-        Logger.info("Event: #{inspect(event)}, #{inspect state}")
+        Logger.info("Event: #{inspect(event)}, #{inspect(state)}")
         {Protocol.serialize(result), state}
     end
   end
@@ -80,8 +80,8 @@ defmodule TicTacToe.Session do
 
   def handle_event({:login, name}, state) do
     case TicTacToe.UsersDatabase.find_by_name(name) do
-    {:ok, user} ->
-        Logger.info("Auth user #{inspect user}")
+      {:ok, user} ->
+        Logger.info("Auth user #{inspect(user)}")
         state = %State{state | user: user}
         {:ok, state}
 

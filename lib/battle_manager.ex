@@ -26,7 +26,7 @@ defmodule TicTacToe.BattleManager do
       [] ->
         state = %{state | sessions: [session_id | sessions]}
         IO.puts("BattleManager add session #{session_id} in state #{inspect(state)}")
-        {:reply, {:ok, :wait_opponent}, state}
+        {:reply, {:ok, :waiting_for_opponent}, state}
 
       _ ->
         {:ok, battle_pid} = TicTacToe.BattleSup.create_battle()

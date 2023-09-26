@@ -10,7 +10,7 @@ defmodule TicTacToe.BattleSup do
     DynamicSupervisor.start_link(__MODULE__, :no_args, name: @sup_name)
   end
 
-  def start_battle() do
+  def create_battle() do
     # process_name = {:via, Registry, {@registry_name, battle_id}}
     child_spec = {TicTacToe.Battle, :no_args}
     DynamicSupervisor.start_child(@sup_name, child_spec)

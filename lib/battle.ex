@@ -1,16 +1,15 @@
 defmodule TicTacToe.Battle do
   require Logger
-
   use GenServer
 
-  def start_link({battle_id, process_name}) do
-    GenServer.start_link(__MODULE__, battle_id, name: process_name)
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, :no_args)
   end
 
   @impl true
-  def init(battle_id) do
+  def init(_) do
     state = %TicTacToe.Model.Battle{
-      id: battle_id,
+      # id: battle_id,
       players: [],
       field: {{nil, nil, nil}, {nil, nil, nil}, {nil, nil, nil}},
       current_move: nil,

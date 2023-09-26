@@ -31,10 +31,20 @@ defmodule TicTacToe.Model do
 
   defmodule Session do
     @type t() :: %__MODULE__{
-            id: pos_integer(),
-            battle: Battle.t(),
+            session_id: pos_integer(),
+            listening_socket: identifier(),
+            socket: identifier(),
+            user: Player.t(),
+            battle_pid: pid(),
             has_opponent: true | false
           }
-    defstruct [:id, :battle, :has_opponent]
+    defstruct [
+      :session_id,
+      :listening_socket,
+      :socket,
+      :user,
+      :battle_pid,
+      :has_opponent
+    ]
   end
 end

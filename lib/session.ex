@@ -2,16 +2,7 @@ defmodule TicTacToe.Session do
   require Logger
   use GenServer
 
-  defmodule State do
-    defstruct [
-      :session_id,
-      :listening_socket,
-      :socket,
-      :user,
-      :battle_pid,
-      :has_opponent
-    ]
-  end
+  alias TicTacToe.Model.{Session}
 
   def start_link({session_id, listening_socket}) do
     GenServer.start_link(__MODULE__, {session_id, listening_socket})
@@ -19,9 +10,11 @@ defmodule TicTacToe.Session do
 
   @impl true
   def init({session_id, listening_socket}) do
-    state = %State{
+    state = %Session{
       session_id: session_id,
       listening_socket: listening_socket,
+      socket: nil,
+      user: nil,
       battle_pid: nil,
       has_opponent: false
     }
@@ -34,7 +27,7 @@ defmodule TicTacToe.Session do
   def handle_continue(:waiting_for_client, state) do
     Logger.info("Session #{state.session_id} is waiting for client")
     {:ok, socket} = :gen_tcp.accept(state.listening_socket)
-    state = %State{state | socket: socket}
+    state = %Session{state | socket: socket}
     Logger.info("Session #{state.session_id} got client with #{inspect(state)}")
     {:noreply, state, {:continue, :receive_data}}
   end
@@ -85,7 +78,7 @@ defmodule TicTacToe.Session do
     case TicTacToe.UsersDatabase.find_by_name(name) do
       {:ok, user} ->
         Logger.info("Auth user #{inspect(user)}")
-        state = %State{state | user: user}
+        state = %Session{state | user: user}
         {:ok, state}
 
       {:error, :not_found} ->

@@ -19,7 +19,6 @@ defmodule TicTacToe.Session do
 
   @impl true
   def init({session_id, listening_socket}) do
-    # battle = TicTacToe.Game.BattleManager.start_battle(session_id)
     state = %State{
       session_id: session_id,
       listening_socket: listening_socket,

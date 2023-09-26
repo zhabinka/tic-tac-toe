@@ -6,22 +6,14 @@ defmodule TicTacToe.BattleManager do
     GenServer.start_link(__MODULE__, :no_args, name: __MODULE__)
   end
 
-  def start_battle(battle_id) do
-    GenServer.call(__MODULE__, {:start_room, battle_id})
-  end
-
-  # NOTE: Как сделать общее имя хранилища для разных модулей?
-  def find_battle(battle_id) do
-    case Registry.lookup(:battle_registry, battle_id) do
-      [{pid, _}] -> {:ok, pid}
-      [] -> {:error, :not_found}
-    end
+  def create_battle(session_id) do
+    GenServer.call(__MODULE__, {:create_battle, session_id})
   end
 
   @impl true
   def init(_) do
     state = %{
-      battles: []
+      sessions: []
     }
 
     Logger.info("BattleManager has started with state #{inspect(state)}")
@@ -29,11 +21,19 @@ defmodule TicTacToe.BattleManager do
   end
 
   @impl true
-  def handle_call({:start_room, battle_id}, _from, %{battles: battles} = state) do
-    {:ok, _} = TicTacToe.BattleSup.start_battle(battle_id)
-    state = %{state | battles: [battle_id | battles]}
-    Logger.info("BattleManager has started battle #{battle_id}, state #{inspect(state)}")
-    {:reply, :ok, state}
+  def handle_call({:create_battle, session_id}, _from, %{sessions: sessions} = state) do
+    case sessions do
+      [] ->
+        state = %{state | sessions: [session_id | sessions]}
+        IO.puts("BattleManager add session #{session_id} in state #{inspect(state)}")
+        {:reply, {:ok, :wait_opponent}, state}
+
+      _ ->
+        {:ok, battle_pid} = TicTacToe.BattleSup.create_battle()
+        IO.puts("BattleManager create battle #{inspect(battle_pid)}")
+        state = %{state | sessions: []}
+        {:reply, {:ok, battle_pid}, state}
+    end
   end
 
   # Catch all

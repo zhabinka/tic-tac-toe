@@ -21,12 +21,13 @@ defmodule TicTacToe.Model do
     @type t() :: %__MODULE__{
             id: pos_integer(),
             players: [User.t()],
+            sessions: {pid(), pid()},
             field: Model.battle_field(),
             current_move: Player.t(),
             status: Model.battle_status(),
             winner: User.t()
           }
-    defstruct [:id, :players, :field, :current_move, :status, :winner]
+    defstruct [:id, :players, :sessions, :field, :current_move, :status, :winner]
   end
 
   defmodule Session do

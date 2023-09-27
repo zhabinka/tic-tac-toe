@@ -8,6 +8,11 @@ defmodule TicTacToe.Session do
     GenServer.start_link(__MODULE__, {session_id, listening_socket})
   end
 
+  def send_event(session_pid, event) do
+    Logger.info("Session.send_event: #{inspect(session_pid)}, #{inspect(event)}")
+    GenServer.cast(session_pid, {:send_event, event})
+  end
+
   @impl true
   def init({session_id, listening_socket}) do
     state = %Session{
@@ -78,6 +83,8 @@ defmodule TicTacToe.Session do
     case TicTacToe.UsersDatabase.find_by_name(name) do
       {:ok, user} ->
         Logger.info("Auth user #{inspect(user)}")
+        # TicTacToe.SessionManager.register_user(user)
+        # Registry.register(:sessions_registry, user.id, user)
         state = %Session{state | user: user}
         {:ok, state}
 
@@ -90,14 +97,36 @@ defmodule TicTacToe.Session do
   def handle_event(:play, state) do
     IO.puts("handle_event :play")
 
-    case TicTacToe.BattleManager.create_battle(state.session_id) do
+    session_pid = self()
+
+    case TicTacToe.BattleManager.create_battle(session_pid) do
       {:ok, :waiting_for_opponent} ->
         Logger.info("Session waiting for oppenent...")
         {:waiting_for_opponent, state}
 
       {:ok, battle_pid} ->
         Logger.info("Session start battle #{inspect(battle_pid)}!")
+        # TicTacToe.Battle.add_player(battle_pid, state.user)
+        # Logger.info("Session add user #{state.user.name} to battle #{inspect(battle_pid)}")
+        IO.inspect(TicTacToe.Battle.get_state(battle_pid))
+        IO.puts("Broadcast")
+        s = TicTacToe.Battle.get_state(battle_pid)
+        TicTacToe.Battle.broadcast(s.sessions)
+        # %TicTacToe.Battle.broadcast(battle_pid, ??)
         {:play, state}
     end
+  end
+
+  @impl true
+  def handle_cast({:send_event, event}, state) do
+    response = TicTacToe.Protocol.serialize(event)
+    :gen_tcp.send(state.socket, response <> "\n")
+    {:noreply, state}
+  end
+
+  # Catch all
+  def handle_cast(message, state) do
+    Logger.warning("Session unknown cast #{inspect(message)}")
+    {:noreply, state}
   end
 end

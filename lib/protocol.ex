@@ -12,7 +12,7 @@ defmodule TicTacToe.Protocol do
   end
 
   def serialize(:waiting_for_opponent), do: "Waiting for opponent..."
-  def serialize(:play), do: "Battle has started!"
+  def serialize(:play), do: "Battle has started!!!!!"
 
   def serialize(:ok), do: "OK"
   def serialize({:error, error}), do: "ERROR: #{inspect(error)}"

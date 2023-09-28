@@ -11,24 +11,26 @@ defmodule TicTacToe.Session do
   @impl true
   def init({session_id, listening_socket}) do
     state = %Session{
-      session_id: session_id,
+      session_pid: self(),
       listening_socket: listening_socket,
       socket: nil,
       user: nil,
-      battle_pid: nil,
-      has_opponent: false
+      battle_pid: nil
     }
 
-    Logger.info("Session #{session_id} has started, state #{inspect(state)}")
+    Logger.info(
+      "Session #{session_id} has started with #{inspect(state.session_pid)}, state #{inspect(state)}"
+    )
+
     {:ok, state, {:continue, :waiting_for_client}}
   end
 
   @impl true
   def handle_continue(:waiting_for_client, state) do
-    Logger.info("Session #{state.session_id} is waiting for client")
+    Logger.info("Session #{inspect(state.session_pid)} is waiting for client")
     {:ok, socket} = :gen_tcp.accept(state.listening_socket)
     state = %Session{state | socket: socket}
-    Logger.info("Session #{state.session_id} got client with #{inspect(state)}")
+    Logger.info("Session #{inspect(state.session_pid)} got client with #{inspect(state)}")
     send(self(), :receive_data)
     {:noreply, state}
   end
@@ -37,7 +39,7 @@ defmodule TicTacToe.Session do
   def handle_info(:receive_data, state) do
     case :gen_tcp.recv(state.socket, 0, 30_000) do
       {:ok, data} ->
-        Logger.info("Session #{state.session_id} got data #{data}")
+        Logger.info("Session #{inspect(state.session_pid)} got data #{data}")
 
         {response, state} =
           data
@@ -49,12 +51,12 @@ defmodule TicTacToe.Session do
         {:noreply, state}
 
       {:error, :timeout} ->
-        Logger.info("Session #{state.session_id} timeout")
+        Logger.info("Session #{inspect(state.session_pid)} timeout")
         send(self(), :receive_data)
         {:noreply, state}
 
       {:error, error} ->
-        Logger.warning("Session #{state.session_id} has got error #{inspect(error)}")
+        Logger.warning("Session #{inspect(state.session_pid)} has got error #{inspect(error)}")
         :gen_tcp.close(state.socket)
         state = on_client_disconnect(state)
         {:noreply, state, {:continue, :waiting_for_client}}
@@ -75,7 +77,7 @@ defmodule TicTacToe.Session do
 
       event ->
         {result, state} = handle_event(event, state)
-        Logger.info("Event: #{inspect(event)}, #{inspect(state)}")
+        Logger.info("BattleManager handle_request event: #{inspect(event)}, #{inspect(state)}")
         {Protocol.serialize(result), state}
     end
   end

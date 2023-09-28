@@ -6,8 +6,8 @@ defmodule TicTacToe.BattleManager do
     GenServer.start_link(__MODULE__, :no_args, name: __MODULE__)
   end
 
-  def create_battle(session_pid) do
-    GenServer.call(__MODULE__, {:create_battle, session_pid})
+  def create_battle(session) do
+    GenServer.call(__MODULE__, {:create_battle, session})
   end
 
   @impl true
@@ -21,22 +21,20 @@ defmodule TicTacToe.BattleManager do
   end
 
   @impl true
-  def handle_call({:create_battle, session_pid}, _from, %{sessions: sessions} = state) do
+  def handle_call({:create_battle, session}, _from, %{sessions: sessions} = state) do
     case sessions do
       [] ->
-        state = %{state | sessions: [session_pid]}
+        state = %{state | sessions: [session]}
 
-        IO.puts(
-          "BattleManager add session #{inspect(session_pid)} in Battle state #{inspect(state)}"
-        )
+        IO.puts("BattleManager add session #{inspect(session)} in Battle state #{inspect(state)}")
 
         {:reply, {:ok, :waiting_for_opponent}, state}
 
       _ ->
-        sessions = [session_pid | state.sessions]
+        sessions = [session | state.sessions]
         {:ok, battle_pid} = TicTacToe.BattleSup.create_battle()
         TicTacToe.Battle.add_sessions(battle_pid, sessions)
-        TicTacToe.Battle.add_current_move(battle_pid, session_pid)
+        TicTacToe.Battle.add_current_move(battle_pid, session)
 
         Logger.info(
           "BattleManager create battle #{inspect(battle_pid)}, add sessions and current move"

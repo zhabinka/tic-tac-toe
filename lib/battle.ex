@@ -18,6 +18,11 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, {:add_current_move, session})
   end
 
+  def broadcast(battle_pid, event) do
+    IO.puts("Battle broadcast #{inspect(battle_pid)}, event #{inspect(event)}")
+    GenServer.call(battle_pid, {:broadcast, event})
+  end
+
   @impl true
   def init(_) do
     state = %TicTacToe.Model.Battle{
@@ -28,13 +33,12 @@ defmodule TicTacToe.Battle do
       winner: nil
     }
 
-    Logger.info("Battle has started #{inspect(state)}")
+    Logger.info("Battle has started")
     {:ok, state}
   end
 
   @impl true
   def handle_call(:get_state, _from, state) do
-    IO.puts("Broadcast")
     {:reply, state, state}
   end
 
@@ -48,9 +52,29 @@ defmodule TicTacToe.Battle do
     {:reply, :ok, state}
   end
 
+  def handle_call({:broadcast, event}, _from, state) do
+    IO.puts("Battle call :broadcast #{inspect(event)}")
+    state = do_broadcast(event, state)
+    {:reply, :ok, state}
+  end
+
   # Catch all
   def handle_call(message, _from, state) do
     Logger.warn("Battle unknown call #{inspect(message)}")
     {:reply, {:error, :unknown_call}, state}
+  end
+
+  def do_broadcast(event, state) do
+    Logger.info("Battle do_broadcast to #{inspect(state.sessions)}: event #{inspect(event)}")
+
+    Enum.each(
+      state.sessions,
+      fn session ->
+        IO.puts("do_broadcast each: #{inspect(session)}, event #{inspect(event)}")
+        TicTacToe.Session.send_event(session, event)
+      end
+    )
+
+    state
   end
 end

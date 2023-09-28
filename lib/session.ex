@@ -8,6 +8,12 @@ defmodule TicTacToe.Session do
     GenServer.start_link(__MODULE__, {session_id, listening_socket})
   end
 
+  # NOTE: Сюда лучше передавать pid или всю сессию целиком?
+  def send_event(session, event) do
+    Logger.info("Session.send_event: #{inspect(session.session_pid)}, #{inspect(event)}")
+    GenServer.cast(session.session_pid, {:send_event, event})
+  end
+
   @impl true
   def init({session_id, listening_socket}) do
     state = %Session{
@@ -108,18 +114,32 @@ defmodule TicTacToe.Session do
   def handle_event(:play, state) do
     IO.puts("handle_event :play")
 
-    session_pid = self()
-
-    case TicTacToe.BattleManager.create_battle(session_pid) do
+    case TicTacToe.BattleManager.create_battle(state) do
       {:ok, :waiting_for_opponent} ->
         Logger.info("Session waiting for oppenent...")
         {:waiting_for_opponent, state}
 
       {:ok, battle_pid} ->
         Logger.info("Session start battle #{inspect(battle_pid)}")
-        IO.inspect(TicTacToe.Battle.get_state(battle_pid))
+        TicTacToe.Battle.broadcast(battle_pid, :broadcast)
         {:play, state}
     end
+  end
+
+  @impl true
+  def handle_cast({:send_event, event}, state) do
+    Logger.info("Session cast :send_event, event #{inspect(event)}, #{inspect(state)}")
+
+    response = TicTacToe.Protocol.serialize(event)
+    Logger.info("Response #{inspect(response)}")
+    :gen_tcp.send(state.socket, response <> "\n")
+    {:noreply, state}
+  end
+
+  # Catch all
+  def handle_cast(message, state) do
+    Logger.warning("Session unknown cast #{inspect(message)}")
+    {:noreply, state}
   end
 
   defp on_client_disconnect(state) do

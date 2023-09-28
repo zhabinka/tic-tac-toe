@@ -21,6 +21,10 @@ defmodule TicTacToe.SessionManager do
     GenServer.call(@session_manager_name, {:register, user})
   end
 
+  def unregister_user(user) do
+    GenServer.call(@session_manager_name, {:unregister, user})
+  end
+
   @impl true
   def init({port, pool_size}) do
     state = %State{port: port, pool_size: pool_size}
@@ -55,6 +59,11 @@ defmodule TicTacToe.SessionManager do
   @impl true
   def handle_call({:register, user}, _from, state) do
     Registry.register(@sessions_registry_name, user.id, user)
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:unregister, user}, _from, state) do
+    Registry.unregister(@sessions_registry_name, user.id)
     {:reply, :ok, state}
   end
 

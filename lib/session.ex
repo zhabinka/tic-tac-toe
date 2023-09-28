@@ -140,7 +140,7 @@ defmodule TicTacToe.Session do
   end
 
   defp on_client_disconnect(state) do
-    Registry.unregister(:sessions_registry, state.user.id)
+    TicTacToe.SessionManager.unregister_user(state.user)
     # TODO: Remove user from Battle
     state
   end

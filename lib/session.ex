@@ -97,13 +97,16 @@ defmodule TicTacToe.Session do
   def handle_event(:play, state) do
     IO.puts("handle_event :play")
 
-    case TicTacToe.BattleManager.create_battle(state.session_id) do
+    session_pid = self()
+
+    case TicTacToe.BattleManager.create_battle(session_pid) do
       {:ok, :waiting_for_opponent} ->
         Logger.info("Session waiting for oppenent...")
         {:waiting_for_opponent, state}
 
       {:ok, battle_pid} ->
-        Logger.info("Session start battle #{inspect(battle_pid)}!")
+        Logger.info("Session start battle #{inspect(battle_pid)}")
+        IO.inspect(TicTacToe.Battle.get_state(battle_pid))
         {:play, state}
     end
   end

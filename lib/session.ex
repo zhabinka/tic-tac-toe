@@ -97,10 +97,7 @@ defmodule TicTacToe.Session do
       {:ok, user} ->
         Logger.info("Auth user #{inspect(user)}")
 
-        # TicTacToe.SessionManager.register_user(user)
-        # NOTE: При регистрации через клиентскую функцию происходит ошибка:
-        # (EXIT) no process: the process is not alive or there's no process currently associated with the given name, possibly because its application isn't started
-        Registry.register(:sessions_registry, user.id, user)
+        TicTacToe.SessionManager.register_user(user)
 
         state = %Session{state | user: user}
         {:ok, state}

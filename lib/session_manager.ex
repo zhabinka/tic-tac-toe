@@ -2,6 +2,7 @@ defmodule TicTacToe.SessionManager do
   require Logger
   use GenServer
 
+  @session_manager_name :session_manager
   @sessions_registry_name :sessions_registry
 
   defmodule State do
@@ -13,11 +14,11 @@ defmodule TicTacToe.SessionManager do
   end
 
   def start_link({port, pool_size}) do
-    GenServer.start_link(__MODULE__, {port, pool_size})
+    GenServer.start_link(__MODULE__, {port, pool_size}, name: @session_manager_name)
   end
 
   def register_user(user) do
-    GenServer.call(__MODULE__, {:register, user})
+    GenServer.call(@session_manager_name, {:register, user})
   end
 
   @impl true

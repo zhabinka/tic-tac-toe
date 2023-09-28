@@ -64,7 +64,7 @@ defmodule TicTacToe.Battle do
     {:reply, {:error, :unknown_call}, state}
   end
 
-  def do_broadcast(event, state) do
+  defp do_broadcast(event, state) do
     Logger.info("Battle do_broadcast to #{inspect(state.sessions)}: event #{inspect(event)}")
 
     Enum.each(

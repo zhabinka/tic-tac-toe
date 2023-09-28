@@ -69,58 +69,10 @@ defmodule TicTacToe.Session do
     end
   end
 
+  # Catch all
   def handle_info(msg, state) do
     Logger.error("Session #{inspect(self())} unknown info #{inspect(msg)}")
     {:noreply, state}
-  end
-
-  def handle_request(request, state) do
-    alias TicTacToe.Protocol
-
-    case Protocol.deserialize(request) do
-      {:error, error} ->
-        {Protocol.serialize({:error, error}), state}
-
-      event ->
-        {result, state} = handle_event(event, state)
-        Logger.info("BattleManager handle_request event: #{inspect(event)}, #{inspect(state)}")
-        {Protocol.serialize(result), state}
-    end
-  end
-
-  def handle_event(:hello, state) do
-    {:hi, state}
-  end
-
-  def handle_event({:login, name}, state) do
-    case TicTacToe.UsersDatabase.find_by_name(name) do
-      {:ok, user} ->
-        Logger.info("Auth user #{inspect(user)}")
-
-        TicTacToe.SessionManager.register_user(user)
-
-        state = %Session{state | user: user}
-        {:ok, state}
-
-      {:error, :not_found} ->
-        Logger.warning("User #{name} auth error")
-        {{:error, :invalid_auth}, state}
-    end
-  end
-
-  def handle_event(:play, state) do
-    IO.puts("handle_event :play")
-
-    case TicTacToe.BattleManager.create_battle(state) do
-      {:ok, :waiting_for_opponent} ->
-        Logger.info("Session waiting for oppenent...")
-        {:waiting_for_opponent, state}
-
-      {:ok, battle_pid} ->
-        Logger.info("Session start battle #{inspect(battle_pid)}")
-        TicTacToe.Battle.broadcast(battle_pid, :broadcast)
-        {:play, state}
-    end
   end
 
   @impl true
@@ -137,6 +89,55 @@ defmodule TicTacToe.Session do
   def handle_cast(message, state) do
     Logger.warning("Session unknown cast #{inspect(message)}")
     {:noreply, state}
+  end
+
+  defp handle_request(request, state) do
+    alias TicTacToe.Protocol
+
+    case Protocol.deserialize(request) do
+      {:error, error} ->
+        {Protocol.serialize({:error, error}), state}
+
+      event ->
+        {result, state} = handle_event(event, state)
+        Logger.info("BattleManager handle_request event: #{inspect(event)}, #{inspect(state)}")
+        {Protocol.serialize(result), state}
+    end
+  end
+
+  defp handle_event(:hello, state) do
+    {:hi, state}
+  end
+
+  defp handle_event({:login, name}, state) do
+    case TicTacToe.UsersDatabase.find_by_name(name) do
+      {:ok, user} ->
+        Logger.info("Auth user #{inspect(user)}")
+
+        TicTacToe.SessionManager.register_user(user)
+
+        state = %Session{state | user: user}
+        {:ok, state}
+
+      {:error, :not_found} ->
+        Logger.warning("User #{name} auth error")
+        {{:error, :invalid_auth}, state}
+    end
+  end
+
+  defp handle_event(:play, state) do
+    IO.puts("handle_event :play")
+
+    case TicTacToe.BattleManager.create_battle(state) do
+      {:ok, :waiting_for_opponent} ->
+        Logger.info("Session waiting for oppenent...")
+        {:waiting_for_opponent, state}
+
+      {:ok, battle_pid} ->
+        Logger.info("Session start battle #{inspect(battle_pid)}")
+        TicTacToe.Battle.broadcast(battle_pid, :broadcast)
+        {:play, state}
+    end
   end
 
   defp on_client_disconnect(state) do

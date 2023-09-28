@@ -43,7 +43,7 @@ defmodule TicTacToe.Session do
 
   @impl true
   def handle_info(:receive_data, state) do
-    case :gen_tcp.recv(state.socket, 0, 30_000) do
+    case :gen_tcp.recv(state.socket, 0, 5_000) do
       {:ok, data} ->
         Logger.info("Session #{inspect(state.session_pid)} got data #{data}")
 

@@ -21,7 +21,7 @@ defmodule TicTacToe.Model do
             players: [User.t()],
             sessions: [Session.t()],
             field: Model.battle_field(),
-            current_move: Player.t(),
+            current_move: User.t(),
             status: Model.battle_status(),
             winner: User.t()
           }

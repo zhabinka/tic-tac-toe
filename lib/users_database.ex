@@ -3,11 +3,11 @@ defmodule TicTacToe.UsersDatabase do
 
   def get_users() do
     [
-      %User{id: 1, name: "Fedor", role: :user},
-      %User{id: 2, name: "Anna", role: :user},
-      %User{id: 3, name: "Vera", role: :user},
-      %User{id: 4, name: "Nina", role: :user},
-      %User{id: 5, name: "Nikita", role: :user}
+      %User{id: 1, name: "Fedor"},
+      %User{id: 2, name: "Anna"},
+      %User{id: 3, name: "Vera"},
+      %User{id: 4, name: "Nina"},
+      %User{id: 5, name: "Nikita"}
     ]
   end
 

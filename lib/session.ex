@@ -52,6 +52,7 @@ defmodule TicTacToe.Session do
       {:error, error} ->
         Logger.warning("Session #{state.session_id} has got error #{inspect(error)}")
         :gen_tcp.close(state.socket)
+        state = on_client_disconnect(state)
         {:noreply, state, {:continue, :waiting_for_client}}
     end
   end
@@ -78,6 +79,12 @@ defmodule TicTacToe.Session do
     case TicTacToe.UsersDatabase.find_by_name(name) do
       {:ok, user} ->
         Logger.info("Auth user #{inspect(user)}")
+
+        # TicTacToe.SessionManager.register_user(user)
+        # NOTE: При регистрации через клиентскую функцию происходит ошибка:
+        # (EXIT) no process: the process is not alive or there's no process currently associated with the given name, possibly because its application isn't started
+        Registry.register(:sessions_registry, user.id, user)
+
         state = %Session{state | user: user}
         {:ok, state}
 
@@ -99,5 +106,11 @@ defmodule TicTacToe.Session do
         Logger.info("Session start battle #{inspect(battle_pid)}!")
         {:play, state}
     end
+  end
+
+  defp on_client_disconnect(state) do
+    Registry.unregister(:sessions_registry, state.user.id)
+    # TODO: Remove user from Battle
+    state
   end
 end

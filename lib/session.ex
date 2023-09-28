@@ -29,10 +29,12 @@ defmodule TicTacToe.Session do
     {:ok, socket} = :gen_tcp.accept(state.listening_socket)
     state = %Session{state | socket: socket}
     Logger.info("Session #{state.session_id} got client with #{inspect(state)}")
-    {:noreply, state, {:continue, :receive_data}}
+    send(self(), :receive_data)
+    {:noreply, state}
   end
 
-  def handle_continue(:receive_data, state) do
+  @impl true
+  def handle_info(:receive_data, state) do
     case :gen_tcp.recv(state.socket, 0, 30_000) do
       {:ok, data} ->
         Logger.info("Session #{state.session_id} got data #{data}")
@@ -43,11 +45,13 @@ defmodule TicTacToe.Session do
           |> handle_request(state)
 
         :gen_tcp.send(state.socket, response <> "\n")
-        {:noreply, state, {:continue, :receive_data}}
+        send(self(), :receive_data)
+        {:noreply, state}
 
       {:error, :timeout} ->
         Logger.info("Session #{state.session_id} timeout")
-        {:noreply, state, {:continue, :receive_data}}
+        send(self(), :receive_data)
+        {:noreply, state}
 
       {:error, error} ->
         Logger.warning("Session #{state.session_id} has got error #{inspect(error)}")
@@ -55,6 +59,11 @@ defmodule TicTacToe.Session do
         state = on_client_disconnect(state)
         {:noreply, state, {:continue, :waiting_for_client}}
     end
+  end
+
+  def handle_info(msg, state) do
+    Logger.error("Session #{inspect(self())} unknown info #{inspect(msg)}")
+    {:noreply, state}
   end
 
   def handle_request(request, state) do

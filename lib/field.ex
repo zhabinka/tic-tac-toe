@@ -15,4 +15,24 @@ defmodule TicTacToe.Field do
       _ -> :no_win
     end
   end
+
+  @spec add_move_to_field(Model.battle_field(), number(), Model.sign()) ::
+          {:ok, Model.battle_field()}
+  def add_move_to_field(field, cell_number, sign) do
+    row_index = div(cell_number - 1, 3)
+    cell_index = rem(cell_number - 1, 3)
+    row = elem(field, row_index)
+    cell = elem(row, cell_index)
+
+    cond do
+      cell != :f ->
+        {:error, :imposible_move}
+
+      true ->
+        {
+          :ok,
+          put_elem(field, row_index, put_elem(row, cell_index, sign))
+        }
+    end
+  end
 end

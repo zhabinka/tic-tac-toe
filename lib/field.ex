@@ -37,4 +37,16 @@ defmodule TicTacToe.Field do
         }
     end
   end
+
+  @spec draw_field(Model.battle_field()) :: String.t()
+  def draw_field(field) do
+    signs = %{cross: " x ", zero: " o ", f: "   "}
+    {{a, b, c}, {d, e, f}, {g, h, i}} = field
+
+    """
+    #{Map.get(signs, a)}|#{Map.get(signs, b)}|#{Map.get(signs, c)}
+    #{Map.get(signs, d)}|#{Map.get(signs, e)}|#{Map.get(signs, f)}
+    #{Map.get(signs, g)}|#{Map.get(signs, h)}|#{Map.get(signs, i)}
+    """
+  end
 end

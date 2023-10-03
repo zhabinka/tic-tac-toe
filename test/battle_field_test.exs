@@ -29,4 +29,12 @@ defmodule Battleest do
     assert {:error, :imposible_move} == add_move_to_field(field, 4, :x)
     assert {:error, :imposible_move} == add_move_to_field(field, 7, :x)
   end
+
+  test "draw field test" do
+    assert "   |   |   \n   |   |   \n   |   |   \n" ==
+             draw_field({{:f, :f, :f}, {:f, :f, :f}, {:f, :f, :f}})
+
+    assert "   | x | o \n o |   |   \n x |   | x \n" ==
+             draw_field({{:f, :cross, :zero}, {:zero, :f, :f}, {:cross, :f, :cross}})
+  end
 end

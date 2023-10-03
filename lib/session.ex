@@ -129,14 +129,16 @@ defmodule TicTacToe.Session do
     IO.puts("handle_event :play")
 
     case TicTacToe.BattleManager.create_battle(state) do
-      {:ok, :waiting_for_opponent} ->
+      {:ok, battle_pid, :waiting_for_opponent} ->
         Logger.info("Session waiting for oppenent...")
+        state = %Session{state | battle_pid: battle_pid}
         {:waiting_for_opponent, state}
 
       {:ok, battle_pid} ->
         Logger.info("Session start battle #{inspect(battle_pid)}")
-        TicTacToe.Battle.broadcast(battle_pid, :broadcast)
-        {:play, state}
+        state = %Session{state | battle_pid: battle_pid}
+        TicTacToe.Battle.broadcast(battle_pid, :play)
+        {:move, state}
     end
   end
 

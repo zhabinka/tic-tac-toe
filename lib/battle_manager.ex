@@ -20,16 +20,17 @@ defmodule TicTacToe.BattleManager do
 
   @impl true
   def handle_call({:create_battle, session}, _from, state) do
-    case Map.fetch(state, :opponent_session) do
-      {:ok, opponent} ->
-        {:ok, battle_pid} = TicTacToe.BattleSup.create_battle()
-        TicTacToe.Battle.prepare_battle(battle_pid, opponent, session)
-        Logger.info("BattleManager create battle #{inspect(battle_pid)}")
+    case Map.fetch(state, :battle_pid) do
+      {:ok, battle_pid} ->
+        TicTacToe.Battle.prepare_battle(battle_pid, state.session, session)
+        Logger.info("BattleManager prepare battle #{inspect(battle_pid)}")
         {:reply, {:ok, battle_pid}, %{}}
 
       :error ->
-        IO.puts("BattleManager add session #{inspect(session)} in Battle state #{inspect(state)}")
-        {:reply, {:ok, :waiting_for_opponent}, Map.put(state, :opponent_session, session)}
+        {:ok, battle_pid} = TicTacToe.BattleSup.create_battle()
+        Logger.info("BattleManager create Battle #{inspect(battle_pid)}")
+        state = %{battle_pid: battle_pid, session: session}
+        {:reply, {:ok, battle_pid, :waiting_for_opponent}, state}
     end
   end
 

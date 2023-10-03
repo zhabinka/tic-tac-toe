@@ -10,8 +10,8 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, :get_state)
   end
 
-  def add_sessions(battle_pid, sessions) do
-    GenServer.call(battle_pid, {:add_sessions, sessions})
+  def prepare_battle(battle_pid, session1, session2) do
+    GenServer.call(battle_pid, {:prepare_battle, session1, session2})
   end
 
   def add_current_move(battle_pid, session) do
@@ -43,13 +43,12 @@ defmodule TicTacToe.Battle do
     {:reply, state, state}
   end
 
-  def handle_call({:add_sessions, sessions}, _from, state) do
-    state = %TicTacToe.Model.Battle{state | sessions: sessions}
-    {:reply, :ok, state}
-  end
+  def handle_call({:prepare_battle, session1, session2}, _from, state) do
+    state =
+      state
+      |> Map.put(:sessions, [session1, session2])
+      |> Map.put(:current_move, session1)
 
-  def handle_call({:add_current_move, session}, _from, state) do
-    state = %TicTacToe.Model.Battle{state | current_move: session}
     {:reply, :ok, state}
   end
 

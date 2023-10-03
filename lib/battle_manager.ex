@@ -12,36 +12,24 @@ defmodule TicTacToe.BattleManager do
 
   @impl true
   def init(_) do
-    state = %{
-      sessions: []
-    }
+    state = %{}
 
     Logger.info("BattleManager has started with state #{inspect(state)}")
     {:ok, state}
   end
 
   @impl true
-  def handle_call({:create_battle, session}, _from, %{sessions: sessions} = state) do
-    case sessions do
-      [] ->
-        state = %{state | sessions: [session]}
-
-        IO.puts("BattleManager add session #{inspect(session)} in Battle state #{inspect(state)}")
-
-        {:reply, {:ok, :waiting_for_opponent}, state}
-
-      _ ->
-        sessions = [session | state.sessions]
+  def handle_call({:create_battle, session}, _from, state) do
+    case Map.fetch(state, :opponent_session) do
+      {:ok, opponent} ->
         {:ok, battle_pid} = TicTacToe.BattleSup.create_battle()
-        TicTacToe.Battle.add_sessions(battle_pid, sessions)
-        TicTacToe.Battle.add_current_move(battle_pid, session)
+        TicTacToe.Battle.prepare_battle(battle_pid, opponent, session)
+        Logger.info("BattleManager create battle #{inspect(battle_pid)}")
+        {:reply, {:ok, battle_pid}, %{}}
 
-        Logger.info(
-          "BattleManager create battle #{inspect(battle_pid)}, add sessions and current move"
-        )
-
-        state = %{state | sessions: []}
-        {:reply, {:ok, battle_pid}, state}
+      :error ->
+        IO.puts("BattleManager add session #{inspect(session)} in Battle state #{inspect(state)}")
+        {:reply, {:ok, :waiting_for_opponent}, Map.put(state, :opponent_session, session)}
     end
   end
 

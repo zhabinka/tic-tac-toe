@@ -1,7 +1,9 @@
 defmodule TicTacToe.Field do
   @type game_result :: {:win, :cross} | {:win, :zero} | :no_win
 
-  @spec check_who_win(TicTacToe.Model.battle_field()) :: game_result
+  alias TicTacToe.Model
+
+  @spec check_who_win(Model.battle_field()) :: game_result
   def check_who_win(field) do
     case field do
       {{a, a, a}, {_, _, _}, {_, _, _}} when a != :f -> {:win, a}

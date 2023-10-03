@@ -2,7 +2,7 @@ defmodule TicTacToe.Model do
   @type battle_status() :: :game_on | :game_off | :game_over
 
   @type sign() :: :cross | :zero
-  @type cell() :: sign() | nil
+  @type cell() :: sign() | :f
   @type row() :: {cell(), cell(), cell()}
   @type battle_field() :: {row(), row(), row()}
 

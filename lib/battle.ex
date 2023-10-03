@@ -28,7 +28,7 @@ defmodule TicTacToe.Battle do
     state = %TicTacToe.Model.Battle{
       players: [],
       sessions: [],
-      field: {{nil, nil, nil}, {nil, nil, nil}, {nil, nil, nil}},
+      field: {{:f, :f, :f}, {:f, :f, :f}, {:f, :f, :f}},
       status: :game_on,
       current_move: nil,
       winner: nil

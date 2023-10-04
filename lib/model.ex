@@ -21,11 +21,12 @@ defmodule TicTacToe.Model do
             players: [User.t()],
             sessions: [Session.t()],
             field: Model.battle_field(),
+            opponent: Session.t(),
             current_move: Session.t(),
             status: Model.battle_status(),
             winner: User.t()
           }
-    defstruct [:id, :players, :sessions, :field, :current_move, :status, :winner]
+    defstruct [:id, :players, :sessions, :field, :opponent, :current_move, :status, :winner]
   end
 
   defmodule Session do

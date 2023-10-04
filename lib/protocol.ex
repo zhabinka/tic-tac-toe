@@ -20,8 +20,9 @@ defmodule TicTacToe.Protocol do
     "Battlefield:\n#{field}\nTo make move type 'move <cell number>'"
   end
 
+  def serialize(:move), do: "Your move:"
+  def serialize(:opponent_move), do: "Opponent move now"
   def serialize({:field, field}), do: field
-
   def serialize(:ok), do: "OK"
   def serialize({:error, error}), do: "ERROR: #{inspect(error)}"
   def serialize(:hi), do: "Hi!"

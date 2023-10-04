@@ -24,7 +24,7 @@ defmodule TicTacToe.BattleManager do
   def handle_call({:create_battle, session}, _from, state) do
     case Map.fetch(state, :battle_pid) do
       {:ok, battle_pid} ->
-        Battle.prepare_battle(battle_pid, state.session, session)
+        Battle.prepare_battle(battle_pid, session, state.session)
         Logger.info("BattleManager prepare battle #{inspect(battle_pid)}")
         {:reply, {:ok, battle_pid}, %{}}
 

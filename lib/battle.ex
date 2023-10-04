@@ -20,8 +20,8 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, {:get_field})
   end
 
-  def make_move(battle_pid, cell_number) do
-    GenServer.call(battle_pid, {:make_move, cell_number})
+  def make_move(battle_pid, session_pid, cell_number) do
+    GenServer.call(battle_pid, {:make_move, session_pid, cell_number})
   end
 
   def broadcast(battle_pid, event) do
@@ -69,27 +69,30 @@ defmodule TicTacToe.Battle do
     {:reply, :ok, state}
   end
 
-  def handle_call({:make_move, cell_number}, from, state) do
-    IO.puts("Move came from #{inspect(from)}")
-    IO.puts("current_move #{inspect(state.current_move)}")
-    IO.puts("opponent #{inspect(state.opponent)}")
+  def handle_call({:make_move, session_pid, cell_number}, _from, state) do
+    if state.current_move.session_pid == session_pid do
+      {:ok, field} = Field.add_move_to_field(state.field, cell_number, state.current_move.sign)
 
-    {:ok, field} = Field.add_move_to_field(state.field, cell_number, state.current_move.sign)
+      Logger.info("User #{inspect(state.current_move)} add move #{inspect(field)}")
+      opponent = state.opponent
+      current_move = state.currEnt_move
 
-    Logger.info("User add move #{inspect(field)}")
-    opponent = state.opponent
-    current_move = state.current_move
+      state =
+        state
+        |> Map.put(:field, field)
+        |> Map.put(:current_move, opponent)
+        |> Map.put(:opponent, current_move)
 
-    state =
-      state
-      |> Map.put(:field, field)
-      |> Map.put(:current_move, opponent)
-      |> Map.put(:opponent, current_move)
+      Session.send_event(opponent, {:field, Field.draw_field(field)})
+      Session.send_event(opponent, :move)
 
-    Session.send_event(opponent, :hi)
-    Session.send_event(current_move, :ok)
-
-    {:reply, :ok, state}
+      {:reply, :ok, state}
+    else
+      # NOTE : Здесь, вроде, сообщение нужно слать в текущую сессию
+      # т.е. state.current_move
+      Session.send_event(state.opponent, :opponent_move)
+      {:reply, {:error, :incorrect_move_equie}, state}
+    end
   end
 
   def handle_call({:get_field}, _from, state) do

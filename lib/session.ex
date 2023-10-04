@@ -151,10 +151,12 @@ defmodule TicTacToe.Session do
   end
 
   defp handle_event({:move, cell_number}, state) do
-    Logger.info("Add move to field #{inspect(state)}")
-    Battle.make_move(state.battle_pid, String.to_integer(cell_number))
-    {:ok, field} = Battle.get_field(state.battle_pid)
-    {{:field, Field.draw_field(field)}, state}
+    Logger.info("Add move #{cell_number} to field #{inspect(Battle.get_field(state.battle_pid))}")
+
+    case Battle.make_move(state.battle_pid, state.session_pid, String.to_integer(cell_number)) do
+      :ok -> {:ok, state}
+      {:error, :incorrect_move_equie} -> {{:error, :incorrect_move_equie}, state}
+    end
   end
 
   defp on_client_disconnect(state) do

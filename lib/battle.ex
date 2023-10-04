@@ -14,8 +14,8 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, {:prepare_battle, session1, session2})
   end
 
-  def add_current_move(battle_pid, session) do
-    GenServer.call(battle_pid, {:add_current_move, session})
+  def get_field(battle_pid) do
+    GenServer.call(battle_pid, {:get_field})
   end
 
   def broadcast(battle_pid, event) do
@@ -56,6 +56,10 @@ defmodule TicTacToe.Battle do
     IO.puts("Battle call :broadcast #{inspect(event)}")
     state = do_broadcast(event, state)
     {:reply, :ok, state}
+  end
+
+  def handle_call({:get_field}, _from, state) do
+    {:reply, {:ok, state.field}, state}
   end
 
   # Catch all

@@ -15,9 +15,9 @@ defmodule TicTacToe.Protocol do
   def serialize(:waiting_for_opponent), do: "Waiting for opponent..."
   def serialize(:play), do: "Battle has started!"
 
-  def serialize(:move) do
+  def serialize(:rule) do
     field = " 1 | 2 | 3 \n 4 | 5 | 6 \n 7 | 8 | 9"
-    "Your move:\n#{field}"
+    "Battlefield:\n#{field}\nTo make move type 'move <cell number>'"
   end
 
   def serialize({:field, field}), do: field

@@ -145,6 +145,7 @@ defmodule TicTacToe.Session do
         Logger.info("Session start battle #{inspect(battle_pid)}")
         state = %Session{state | battle_pid: battle_pid}
         Battle.broadcast(battle_pid, :play)
+        Battle.broadcast(battle_pid, :rule)
         {:move, state}
     end
   end

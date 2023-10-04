@@ -4,6 +4,15 @@ defmodule TicTacToe.Session do
 
   alias TicTacToe.Model.{Session}
 
+  alias TicTacToe.{
+    Battle,
+    Field,
+    UsersDatabase,
+    Protocol,
+    SessionManager,
+    BattleManager
+  }
+
   def start_link({session_id, listening_socket}) do
     GenServer.start_link(__MODULE__, {session_id, listening_socket})
   end
@@ -79,7 +88,7 @@ defmodule TicTacToe.Session do
   def handle_cast({:send_event, event}, state) do
     Logger.info("Session cast :send_event, event #{inspect(event)}, #{inspect(state)}")
 
-    response = TicTacToe.Protocol.serialize(event)
+    response = Protocol.serialize(event)
     Logger.info("Response #{inspect(response)}")
     :gen_tcp.send(state.socket, response <> "\n")
     {:noreply, state}
@@ -92,8 +101,6 @@ defmodule TicTacToe.Session do
   end
 
   defp handle_request(request, state) do
-    alias TicTacToe.Protocol
-
     case Protocol.deserialize(request) do
       {:error, error} ->
         {Protocol.serialize({:error, error}), state}
@@ -110,11 +117,11 @@ defmodule TicTacToe.Session do
   end
 
   defp handle_event({:login, name}, state) do
-    case TicTacToe.UsersDatabase.find_by_name(name) do
+    case UsersDatabase.find_by_name(name) do
       {:ok, user} ->
         Logger.info("Auth user #{inspect(user)}")
 
-        TicTacToe.SessionManager.register_user(user)
+        SessionManager.register_user(user)
 
         state = %Session{state | user: user}
         {:ok, state}
@@ -128,7 +135,7 @@ defmodule TicTacToe.Session do
   defp handle_event(:play, state) do
     IO.puts("handle_event :play")
 
-    case TicTacToe.BattleManager.create_battle(state) do
+    case BattleManager.create_battle(state) do
       {:ok, battle_pid, :waiting_for_opponent} ->
         Logger.info("Session waiting for oppenent...")
         state = %Session{state | battle_pid: battle_pid}
@@ -137,20 +144,20 @@ defmodule TicTacToe.Session do
       {:ok, battle_pid} ->
         Logger.info("Session start battle #{inspect(battle_pid)}")
         state = %Session{state | battle_pid: battle_pid}
-        TicTacToe.Battle.broadcast(battle_pid, :play)
+        Battle.broadcast(battle_pid, :play)
         {:move, state}
     end
   end
 
   defp handle_event({:move, cell_number}, state) do
     Logger.info("Add move to field #{inspect(state)}")
-    TicTacToe.Battle.make_move(state.battle_pid, String.to_integer(cell_number))
-    {:ok, field} = TicTacToe.Battle.get_field(state.battle_pid)
-    {{:field, TicTacToe.Field.draw_field(field)}, state}
+    Battle.make_move(state.battle_pid, String.to_integer(cell_number))
+    {:ok, field} = Battle.get_field(state.battle_pid)
+    {{:field, Field.draw_field(field)}, state}
   end
 
   defp on_client_disconnect(state) do
-    TicTacToe.SessionManager.unregister_user(state.user)
+    SessionManager.unregister_user(state.user)
     # TODO: Remove user from Battle
     state
   end

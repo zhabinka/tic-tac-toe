@@ -2,6 +2,8 @@ defmodule TicTacToe.BattleManager do
   require Logger
   use GenServer
 
+  alias TicTacToe.{Battle, BattleSup}
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, :no_args, name: __MODULE__)
   end
@@ -22,12 +24,12 @@ defmodule TicTacToe.BattleManager do
   def handle_call({:create_battle, session}, _from, state) do
     case Map.fetch(state, :battle_pid) do
       {:ok, battle_pid} ->
-        TicTacToe.Battle.prepare_battle(battle_pid, state.session, session)
+        Battle.prepare_battle(battle_pid, state.session, session)
         Logger.info("BattleManager prepare battle #{inspect(battle_pid)}")
         {:reply, {:ok, battle_pid}, %{}}
 
       :error ->
-        {:ok, battle_pid} = TicTacToe.BattleSup.create_battle()
+        {:ok, battle_pid} = BattleSup.create_battle()
         Logger.info("BattleManager create Battle #{inspect(battle_pid)}")
         state = %{battle_pid: battle_pid, session: session}
         {:reply, {:ok, battle_pid, :waiting_for_opponent}, state}

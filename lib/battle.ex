@@ -2,6 +2,8 @@ defmodule TicTacToe.Battle do
   require Logger
   use GenServer
 
+  alias TicTacToe.{Session, Model, Field}
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, :no_args)
   end
@@ -29,7 +31,7 @@ defmodule TicTacToe.Battle do
 
   @impl true
   def init(_) do
-    state = %TicTacToe.Model.Battle{
+    state = %Model.Battle{
       players: [],
       sessions: [],
       field: {{:f, :f, :f}, {:f, :f, :f}, {:f, :f, :f}},
@@ -49,8 +51,8 @@ defmodule TicTacToe.Battle do
   end
 
   def handle_call({:prepare_battle, session1, session2}, _from, state) do
-    session1 = %TicTacToe.Model.Session{session1 | sign: :cross}
-    session2 = %TicTacToe.Model.Session{session2 | sign: :zero}
+    session1 = %Model.Session{session1 | sign: :cross}
+    session2 = %Model.Session{session2 | sign: :zero}
 
     state =
       state
@@ -72,8 +74,7 @@ defmodule TicTacToe.Battle do
     IO.puts("current_move #{inspect(state.current_move)}")
     IO.puts("opponent #{inspect(state.opponent)}")
 
-    {:ok, field} =
-      TicTacToe.Field.add_move_to_field(state.field, cell_number, state.current_move.sign)
+    {:ok, field} = Field.add_move_to_field(state.field, cell_number, state.current_move.sign)
 
     Logger.info("User add move #{inspect(field)}")
     opponent = state.opponent
@@ -85,8 +86,8 @@ defmodule TicTacToe.Battle do
       |> Map.put(:current_move, opponent)
       |> Map.put(:opponent, current_move)
 
-    TicTacToe.Session.send_event(opponent, :hi)
-    TicTacToe.Session.send_event(current_move, :ok)
+    Session.send_event(opponent, :hi)
+    Session.send_event(current_move, :ok)
 
     {:reply, :ok, state}
   end
@@ -108,7 +109,7 @@ defmodule TicTacToe.Battle do
       state.sessions,
       fn session ->
         IO.puts("do_broadcast each: #{inspect(session)}, event #{inspect(event)}")
-        TicTacToe.Session.send_event(session, event)
+        Session.send_event(session, event)
       end
     )
 

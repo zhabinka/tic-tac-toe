@@ -35,8 +35,9 @@ defmodule TicTacToe.Model do
             listening_socket: port(),
             socket: port(),
             user: User.t(),
+            sign: Model.sign(),
             battle_pid: pid()
           }
-    defstruct [:session_pid, :listening_socket, :socket, :user, :battle_pid]
+    defstruct [:session_pid, :listening_socket, :socket, :user, :sign, :battle_pid]
   end
 end

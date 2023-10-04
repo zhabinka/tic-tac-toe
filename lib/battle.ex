@@ -30,6 +30,7 @@ defmodule TicTacToe.Battle do
       sessions: [],
       field: {{:f, :f, :f}, {:f, :f, :f}, {:f, :f, :f}},
       status: :game_on,
+      opponent: nil,
       current_move: nil,
       winner: nil
     }
@@ -44,9 +45,13 @@ defmodule TicTacToe.Battle do
   end
 
   def handle_call({:prepare_battle, session1, session2}, _from, state) do
+    session1 = %TicTacToe.Model.Session{session1 | sign: :cross}
+    session2 = %TicTacToe.Model.Session{session2 | sign: :zero}
+
     state =
       state
       |> Map.put(:sessions, [session1, session2])
+      |> Map.put(:opponent, session2)
       |> Map.put(:current_move, session1)
 
     {:reply, :ok, state}

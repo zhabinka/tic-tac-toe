@@ -6,7 +6,6 @@ defmodule TicTacToe.Session do
 
   alias TicTacToe.{
     Battle,
-    Field,
     UsersDatabase,
     Protocol,
     SessionManager,
@@ -83,6 +82,22 @@ defmodule TicTacToe.Session do
     Logger.error("Session #{inspect(self())} unknown info #{inspect(msg)}")
     {:noreply, state}
   end
+
+  # @impl true
+  # def handle_call({:send_event, event}, _from, state) do
+  #   Logger.info("Session call :send_event, event #{inspect(event)}, #{inspect(state)}")
+  #
+  #   response = Protocol.serialize(event)
+  #   Logger.info("Response #{inspect(response)}")
+  #   :gen_tcp.send(state.socket, response <> "\n")
+  #   {:reply, :ok, state}
+  # end
+  #
+  # # Catch all
+  # def handle_call(message, _from, state) do
+  #   Logger.warning("Session unknown call #{inspect(message)}")
+  #   {:reply, :ok, state}
+  # end
 
   @impl true
   def handle_cast({:send_event, event}, state) do

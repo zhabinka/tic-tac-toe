@@ -18,6 +18,10 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, {:get_field})
   end
 
+  def make_move(battle_pid, cell_number) do
+    GenServer.call(battle_pid, {:make_move, cell_number})
+  end
+
   def broadcast(battle_pid, event) do
     IO.puts("Battle broadcast #{inspect(battle_pid)}, event #{inspect(event)}")
     GenServer.call(battle_pid, {:broadcast, event})
@@ -60,6 +64,30 @@ defmodule TicTacToe.Battle do
   def handle_call({:broadcast, event}, _from, state) do
     IO.puts("Battle call :broadcast #{inspect(event)}")
     state = do_broadcast(event, state)
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:make_move, cell_number}, from, state) do
+    IO.puts("Move came from #{inspect(from)}")
+    IO.puts("current_move #{inspect(state.current_move)}")
+    IO.puts("opponent #{inspect(state.opponent)}")
+
+    {:ok, field} =
+      TicTacToe.Field.add_move_to_field(state.field, cell_number, state.current_move.sign)
+
+    Logger.info("User add move #{inspect(field)}")
+    opponent = state.opponent
+    current_move = state.current_move
+
+    state =
+      state
+      |> Map.put(:field, field)
+      |> Map.put(:current_move, opponent)
+      |> Map.put(:opponent, current_move)
+
+    TicTacToe.Session.send_event(opponent, :hi)
+    TicTacToe.Session.send_event(current_move, :ok)
+
     {:reply, :ok, state}
   end
 

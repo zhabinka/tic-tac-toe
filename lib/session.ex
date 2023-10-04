@@ -142,6 +142,13 @@ defmodule TicTacToe.Session do
     end
   end
 
+  defp handle_event({:move, cell_number}, state) do
+    Logger.info("Add move to field #{inspect(state)}")
+    TicTacToe.Battle.make_move(state.battle_pid, String.to_integer(cell_number))
+    {:ok, field} = TicTacToe.Battle.get_field(state.battle_pid)
+    {{:field, TicTacToe.Field.draw_field(field)}, state}
+  end
+
   defp on_client_disconnect(state) do
     TicTacToe.SessionManager.unregister_user(state.user)
     # TODO: Remove user from Battle

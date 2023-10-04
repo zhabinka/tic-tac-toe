@@ -4,6 +4,7 @@ defmodule TicTacToe.Protocol do
   def deserialize("hello"), do: :hello
   def deserialize("login " <> name), do: {:login, name}
   def deserialize("play"), do: :play
+  def deserialize("move " <> move), do: {:move, move}
 
   # Catch all
   def deserialize(message) do
@@ -13,7 +14,13 @@ defmodule TicTacToe.Protocol do
 
   def serialize(:waiting_for_opponent), do: "Waiting for opponent..."
   def serialize(:play), do: "Battle has started!"
-  def serialize(:broadcast), do: "Broadcast message"
+
+  def serialize(:move) do
+    field = " 1 | 2 | 3 \n 4 | 5 | 6 \n 7 | 8 | 9"
+    "Your move:\n#{field}"
+  end
+
+  def serialize({:field, field}), do: field
 
   def serialize(:ok), do: "OK"
   def serialize({:error, error}), do: "ERROR: #{inspect(error)}"

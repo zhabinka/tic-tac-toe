@@ -100,6 +100,9 @@ defmodule TicTacToe.Battle do
         {:error, :impossible_move} ->
           {:reply, {:error, :impossible_move}, state}
 
+        {:error, :wrong_cell_number} ->
+          {:reply, {:error, :wrong_cell_number}, state}
+
         {:ok, field} ->
           Logger.info("User #{inspect(state.current_move)} add move #{inspect(field)}")
           opponent = state.opponent

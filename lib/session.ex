@@ -186,7 +186,6 @@ defmodule TicTacToe.Session do
         {:ok, field} = Battle.get_field(state.battle_pid)
         response_field = Protocol.serialize({:field, Field.draw_field(field)})
         response_move = Protocol.serialize(:move)
-        # response_win = Protocol.serialize(:win)
         resonse_lose = Protocol.serialize(:lose)
 
         case Field.check_who_win(field) do

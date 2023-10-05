@@ -6,6 +6,7 @@ defmodule TicTacToe.Session do
 
   alias TicTacToe.{
     Battle,
+    Field,
     UsersDatabase,
     Protocol,
     SessionManager,
@@ -169,9 +170,25 @@ defmodule TicTacToe.Session do
     Logger.info("Add move #{cell_number} to field #{inspect(Battle.get_field(state.battle_pid))}")
 
     case Battle.make_move(state.battle_pid, state.session_pid, String.to_integer(cell_number)) do
-      :ok -> {:ok, state}
-      {:error, :impossible_move} -> {{:error, :impossible_move}, state}
-      {:error, :move_order_broken} -> {{:error, :move_order_broken}, state}
+      :ok ->
+        # NOTE : Дилема: слать сообщение через API Session нельзя.
+        # GenServer не может обращаться к своему клиентскому API
+        # Как быть?
+        {:ok, opponent} = Battle.get_opponent(state.battle_pid)
+        {:ok, field} = Battle.get_field(state.battle_pid)
+
+        response_field = Protocol.serialize({:field, Field.draw_field(field)})
+        :gen_tcp.send(opponent.socket, response_field <> "\n")
+        resonse_move = Protocol.serialize(:move)
+        :gen_tcp.send(opponent.socket, resonse_move <> "\n")
+
+        {:ok, state}
+
+      {:error, :impossible_move} ->
+        {{:error, :impossible_move}, state}
+
+      {:error, :move_order_broken} ->
+        {{:error, :move_order_broken}, state}
     end
   end
 

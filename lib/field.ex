@@ -28,7 +28,7 @@ defmodule TicTacToe.Field do
 
     cond do
       cell != :f ->
-        {:error, :imposible_move}
+        {:error, :impossible_move}
 
       true ->
         {

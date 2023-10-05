@@ -71,27 +71,31 @@ defmodule TicTacToe.Battle do
 
   def handle_call({:make_move, session_pid, cell_number}, _from, state) do
     if state.current_move.session_pid == session_pid do
-      {:ok, field} = Field.add_move_to_field(state.field, cell_number, state.current_move.sign)
+      case Field.add_move_to_field(state.field, cell_number, state.current_move.sign) do
+        {:error, :impossible_move} ->
+          {:reply, {:error, :impossible_move}, state}
 
-      Logger.info("User #{inspect(state.current_move)} add move #{inspect(field)}")
-      opponent = state.opponent
-      current_move = state.currEnt_move
+        {:ok, field} ->
+          Logger.info("User #{inspect(state.current_move)} add move #{inspect(field)}")
+          opponent = state.opponent
+          current_move = state.current_move
 
-      state =
-        state
-        |> Map.put(:field, field)
-        |> Map.put(:current_move, opponent)
-        |> Map.put(:opponent, current_move)
+          state =
+            state
+            |> Map.put(:field, field)
+            |> Map.put(:current_move, opponent)
+            |> Map.put(:opponent, current_move)
 
-      Session.send_event(opponent, {:field, Field.draw_field(field)})
-      Session.send_event(opponent, :move)
+          Session.send_event(opponent, {:field, Field.draw_field(field)})
+          Session.send_event(opponent, :move)
 
-      {:reply, :ok, state}
+          {:reply, :ok, state}
+      end
     else
       # NOTE : Здесь, вроде, сообщение нужно слать в текущую сессию
       # т.е. state.current_move
       Session.send_event(state.opponent, :opponent_move)
-      {:reply, {:error, :incorrect_move_equie}, state}
+      {:reply, {:error, :move_order_broken}, state}
     end
   end
 

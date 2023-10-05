@@ -26,8 +26,8 @@ defmodule Battleest do
     assert {:ok, {{:f, :x, :o}, {:o, :x, :f}, {:x, :f, :f}}} == add_move_to_field(field, 5, :x)
     assert {:ok, {{:o, :x, :o}, {:o, :f, :f}, {:x, :f, :f}}} == add_move_to_field(field, 1, :o)
 
-    assert {:error, :imposible_move} == add_move_to_field(field, 4, :x)
-    assert {:error, :imposible_move} == add_move_to_field(field, 7, :x)
+    assert {:error, :impossible_move} == add_move_to_field(field, 4, :x)
+    assert {:error, :impossible_move} == add_move_to_field(field, 7, :x)
   end
 
   test "draw field test" do

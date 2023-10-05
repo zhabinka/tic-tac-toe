@@ -170,7 +170,8 @@ defmodule TicTacToe.Session do
 
     case Battle.make_move(state.battle_pid, state.session_pid, String.to_integer(cell_number)) do
       :ok -> {:ok, state}
-      {:error, :incorrect_move_equie} -> {{:error, :incorrect_move_equie}, state}
+      {:error, :impossible_move} -> {{:error, :impossible_move}, state}
+      {:error, :move_order_broken} -> {{:error, :move_order_broken}, state}
     end
   end
 

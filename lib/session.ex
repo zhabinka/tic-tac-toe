@@ -160,9 +160,17 @@ defmodule TicTacToe.Session do
       {:ok, battle_pid} ->
         Logger.info("Session start battle #{inspect(battle_pid)}")
         state = %Session{state | battle_pid: battle_pid}
-        Battle.broadcast(battle_pid, :play)
-        Battle.broadcast(battle_pid, :rule)
-        {:move, state}
+
+        {:ok, current_move} = Battle.get_current_move(state.battle_pid)
+        response_start = Protocol.serialize(:start_battle)
+        response_rule = Protocol.serialize(:rule)
+        response_move = Protocol.serialize(:move)
+        :gen_tcp.send(current_move.socket, response_start <> "\n")
+        :gen_tcp.send(current_move.socket, response_rule <> "\n")
+        :gen_tcp.send(current_move.socket, response_move <> "\n")
+
+        :gen_tcp.send(state.socket, response_start <> "\n")
+        {:waiting_opponent_move, state}
     end
   end
 
@@ -174,15 +182,24 @@ defmodule TicTacToe.Session do
         # NOTE : Дилема: слать сообщение через API Session нельзя.
         # GenServer не может обращаться к своему клиентскому API
         # Как быть?
-        {:ok, opponent} = Battle.get_opponent(state.battle_pid)
+        {:ok, opponent} = Battle.get_current_move(state.battle_pid)
         {:ok, field} = Battle.get_field(state.battle_pid)
-
         response_field = Protocol.serialize({:field, Field.draw_field(field)})
-        :gen_tcp.send(opponent.socket, response_field <> "\n")
-        resonse_move = Protocol.serialize(:move)
-        :gen_tcp.send(opponent.socket, resonse_move <> "\n")
+        response_move = Protocol.serialize(:move)
+        # response_win = Protocol.serialize(:win)
+        resonse_lose = Protocol.serialize(:lose)
 
-        {:ok, state}
+        case Field.check_who_win(field) do
+          {:win, _sign} ->
+            :gen_tcp.send(opponent.socket, resonse_lose)
+            {:win, state}
+
+          :no_win ->
+            :gen_tcp.send(opponent.socket, response_field <> "\n")
+            :gen_tcp.send(opponent.socket, response_move <> "\n")
+
+            {:ok, state}
+        end
 
       {:error, :impossible_move} ->
         {{:error, :impossible_move}, state}

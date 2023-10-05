@@ -13,7 +13,7 @@ defmodule TicTacToe.Protocol do
   end
 
   def serialize(:waiting_for_opponent), do: "Waiting for opponent..."
-  def serialize(:play), do: "Battle has started!"
+  def serialize(:start_battle), do: "Battle has started!"
 
   def serialize(:rule) do
     field = " 1 | 2 | 3 \n 4 | 5 | 6 \n 7 | 8 | 9"
@@ -21,7 +21,9 @@ defmodule TicTacToe.Protocol do
   end
 
   def serialize(:move), do: "Your move:"
-  def serialize(:opponent_move), do: "Opponent move now"
+  def serialize(:waiting_opponent_move), do: "Wait opponent move"
+  def serialize(:win), do: "You have won. Congratulation!"
+  def serialize(:lose), do: "You have lost. Don't be upset!"
   def serialize({:field, field}), do: field
   def serialize(:ok), do: "OK"
   def serialize({:error, error}), do: "ERROR: #{inspect(error)}"

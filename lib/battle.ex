@@ -22,6 +22,10 @@ defmodule TicTacToe.Battle do
 
   # TODO : Повторяется задача получение значения поля
   # Подумать, можно ли отрефакторить?
+  def get_current_move(battle_pid) do
+    GenServer.call(battle_pid, {:get_current_move})
+  end
+
   def get_opponent(battle_pid) do
     GenServer.call(battle_pid, {:get_opponent})
   end
@@ -86,10 +90,6 @@ defmodule TicTacToe.Battle do
           opponent = state.opponent
           current_move = state.current_move
 
-          # case Field.check_who_win(field) do
-          # {:win, _} 
-          #   end
-
           state =
             state
             |> Map.put(:field, field)
@@ -101,13 +101,17 @@ defmodule TicTacToe.Battle do
     else
       # NOTE : Здесь, вроде, сообщение нужно слать в текущую сессию
       # т.е. state.current_move
-      Session.send_event(state.opponent, :opponent_move)
+      Session.send_event(state.opponent, :waiting_opponent_move)
       {:reply, {:error, :move_order_broken}, state}
     end
   end
 
   def handle_call({:get_field}, _from, state) do
     {:reply, {:ok, state.field}, state}
+  end
+
+  def handle_call({:get_current_move}, _from, state) do
+    {:reply, {:ok, state.current_move}, state}
   end
 
   def handle_call({:get_opponent}, _from, state) do

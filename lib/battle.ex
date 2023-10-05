@@ -16,6 +16,11 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, {:prepare_battle, session1, session2})
   end
 
+  def finish_battle(battle_pid, :win, session) do
+    GenServer.call(battle_pid, {:finish_battle, :win, session})
+  end
+
+
   def get_field(battle_pid) do
     GenServer.call(battle_pid, {:get_field})
   end
@@ -72,6 +77,15 @@ defmodule TicTacToe.Battle do
     {:reply, :ok, state}
   end
 
+  def handle_call({:finish_battle, :win, session}, _from, state) do
+    state =
+      state
+      |> Map.put(:status, :game_over)
+      |> Map.put(:winner, session)
+
+    {:reply, :ok, state}
+  end
+
   def handle_call({:broadcast, event}, _from, state) do
     IO.puts("Battle call :broadcast #{inspect(event)}")
     state = do_broadcast(event, state)
@@ -89,6 +103,7 @@ defmodule TicTacToe.Battle do
           opponent = state.opponent
           current_move = state.current_move
 
+          # NOTE : Не очень красиво. Есть ли другой способ добавить несколько значений в структру?
           state =
             state
             |> Map.put(:field, field)

@@ -20,6 +20,12 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, {:get_field})
   end
 
+  # TODO : Повторяется задача получение значения поля
+  # Подумать, можно ли отрефакторить?
+  def get_opponent(battle_pid) do
+    GenServer.call(battle_pid, {:get_opponent})
+  end
+
   def make_move(battle_pid, session_pid, cell_number) do
     GenServer.call(battle_pid, {:make_move, session_pid, cell_number})
   end
@@ -80,14 +86,15 @@ defmodule TicTacToe.Battle do
           opponent = state.opponent
           current_move = state.current_move
 
+          # case Field.check_who_win(field) do
+          # {:win, _} 
+          #   end
+
           state =
             state
             |> Map.put(:field, field)
             |> Map.put(:current_move, opponent)
             |> Map.put(:opponent, current_move)
-
-          Session.send_event(opponent, {:field, Field.draw_field(field)})
-          Session.send_event(opponent, :move)
 
           {:reply, :ok, state}
       end
@@ -101,6 +108,10 @@ defmodule TicTacToe.Battle do
 
   def handle_call({:get_field}, _from, state) do
     {:reply, {:ok, state.field}, state}
+  end
+
+  def handle_call({:get_opponent}, _from, state) do
+    {:reply, {:ok, state.opponent}, state}
   end
 
   # Catch all

@@ -18,7 +18,6 @@ defmodule TicTacToe.Model do
   defmodule Battle do
     @type t() :: %__MODULE__{
             id: pos_integer(),
-            players: [User.t()],
             sessions: [Session.t()],
             field: Model.battle_field(),
             opponent: Session.t(),
@@ -26,7 +25,7 @@ defmodule TicTacToe.Model do
             status: Model.battle_status(),
             winner: User.t()
           }
-    defstruct [:id, :players, :sessions, :field, :opponent, :current_move, :status, :winner]
+    defstruct [:id, :sessions, :field, :opponent, :current_move, :status, :winner]
   end
 
   defmodule Session do

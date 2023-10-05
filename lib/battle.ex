@@ -42,7 +42,6 @@ defmodule TicTacToe.Battle do
   @impl true
   def init(_) do
     state = %Model.Battle{
-      players: [],
       sessions: [],
       field: {{:f, :f, :f}, {:f, :f, :f}, {:f, :f, :f}},
       status: :game_on,

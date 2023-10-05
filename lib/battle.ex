@@ -82,6 +82,8 @@ defmodule TicTacToe.Battle do
       state
       |> Map.put(:status, :game_over)
       |> Map.put(:winner, session)
+      |> Map.put(:current_move, nil)
+      |> Map.put(:opponent, nil)
 
     {:reply, :ok, state}
   end

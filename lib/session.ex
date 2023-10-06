@@ -161,13 +161,13 @@ defmodule TicTacToe.Session do
         Logger.info("Session start battle #{inspect(battle_pid)}")
         state = %Session{state | battle_pid: battle_pid}
 
-        {:ok, current_move} = Battle.get_current_move(state.battle_pid)
+        {:ok, current_session} = Battle.get_current_session(state.battle_pid)
         response_start = Protocol.serialize(:start_battle)
         response_rule = Protocol.serialize(:rule)
         response_move = Protocol.serialize(:move)
-        :gen_tcp.send(current_move.socket, response_start <> "\n")
-        :gen_tcp.send(current_move.socket, response_rule <> "\n")
-        :gen_tcp.send(current_move.socket, response_move <> "\n")
+        :gen_tcp.send(current_session.socket, response_start <> "\n")
+        :gen_tcp.send(current_session.socket, response_rule <> "\n")
+        :gen_tcp.send(current_session.socket, response_move <> "\n")
 
         :gen_tcp.send(state.socket, response_start <> "\n")
         {:waiting_opponent_move, state}
@@ -182,7 +182,7 @@ defmodule TicTacToe.Session do
         # NOTE : Дилема: слать сообщение через API Session нельзя.
         # GenServer не может обращаться к своему клиентскому API
         # Как быть?
-        {:ok, opponent} = Battle.get_current_move(state.battle_pid)
+        {:ok, opponent} = Battle.get_current_session(state.battle_pid)
         {:ok, field} = Battle.get_field(state.battle_pid)
         response_field = Protocol.serialize({:field, Field.draw_field(field)})
         response_move = Protocol.serialize(:move)

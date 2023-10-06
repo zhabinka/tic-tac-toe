@@ -26,8 +26,8 @@ defmodule TicTacToe.Battle do
 
   # TODO : Повторяется задача получение значения поля
   # Подумать, можно ли отрефакторить?
-  def get_current_move(battle_pid) do
-    GenServer.call(battle_pid, {:get_current_move})
+  def get_current_session(battle_pid) do
+    GenServer.call(battle_pid, {:get_current_session})
   end
 
   def get_opponent(battle_pid) do
@@ -50,7 +50,7 @@ defmodule TicTacToe.Battle do
       field: {{:f, :f, :f}, {:f, :f, :f}, {:f, :f, :f}},
       status: :game_on,
       opponent: nil,
-      current_move: nil,
+      current_session: nil,
       winner: nil
     }
 
@@ -71,7 +71,7 @@ defmodule TicTacToe.Battle do
       state
       |> Map.put(:sessions, [session1, session2])
       |> Map.put(:opponent, session2)
-      |> Map.put(:current_move, session1)
+      |> Map.put(:current_session, session1)
 
     {:reply, :ok, state}
   end
@@ -81,7 +81,7 @@ defmodule TicTacToe.Battle do
       state
       |> Map.put(:status, :game_over)
       |> Map.put(:winner, session)
-      |> Map.put(:current_move, nil)
+      |> Map.put(:current_session, nil)
       |> Map.put(:opponent, nil)
 
     {:reply, :ok, state}
@@ -94,28 +94,28 @@ defmodule TicTacToe.Battle do
   end
 
   def handle_call({:make_move, session_pid, cell_number}, _from, state) do
-    if state.current_move.session_pid == session_pid do
-      case Field.add_move_to_field(state.field, cell_number, state.current_move.sign) do
+    if state.current_session.session_pid == session_pid do
+      case Field.add_move_to_field(state.field, cell_number, state.current_session.sign) do
         {:error, error} ->
           {:reply, {:error, error}, state}
 
         {:ok, field} ->
-          Logger.info("User #{inspect(state.current_move)} add move #{inspect(field)}")
+          Logger.info("User #{inspect(state.current_session)} add move #{inspect(field)}")
           opponent = state.opponent
-          current_move = state.current_move
+          current_session = state.current_session
 
           # NOTE : Не очень красиво. Есть ли другой способ добавить несколько значений в структру?
           state =
             state
             |> Map.put(:field, field)
-            |> Map.put(:current_move, opponent)
-            |> Map.put(:opponent, current_move)
+            |> Map.put(:current_session, opponent)
+            |> Map.put(:opponent, current_session)
 
           {:reply, :ok, state}
       end
     else
       # NOTE : Здесь, вроде, сообщение нужно слать в текущую сессию
-      # т.е. state.current_move
+      # т.е. state.current_session
       Session.send_event(state.opponent, :waiting_opponent_move)
       {:reply, {:error, :move_order_broken}, state}
     end
@@ -125,8 +125,8 @@ defmodule TicTacToe.Battle do
     {:reply, {:ok, state.field}, state}
   end
 
-  def handle_call({:get_current_move}, _from, state) do
-    {:reply, {:ok, state.current_move}, state}
+  def handle_call({:get_current_session}, _from, state) do
+    {:reply, {:ok, state.current_session}, state}
   end
 
   def handle_call({:get_opponent}, _from, state) do

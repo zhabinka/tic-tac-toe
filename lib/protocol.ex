@@ -22,7 +22,7 @@ defmodule TicTacToe.Protocol do
 
   def serialize(:move), do: "Your move:"
   def serialize(:waiting_opponent_move), do: "Wait opponent move"
-  def serialize({:win, field}), do: "You have won. Congratulation!\n" <> field
+  def serialize(:win), do: "You have won. Congratulation!"
   def serialize(:lose), do: "You have lost. Don't be upset!"
   def serialize({:field, field}), do: field
   def serialize(:ok), do: "OK"

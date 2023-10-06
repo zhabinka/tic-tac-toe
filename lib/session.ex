@@ -196,9 +196,9 @@ defmodule TicTacToe.Session do
             Battle.finish_battle(state.battle_pid, :win, state)
             IO.inspect(Battle.get_state(state.battle_pid))
 
-            :gen_tcp.send(opponent.socket, "\nResult:\n" <> response_field)
+            # :gen_tcp.send(opponent.socket, "\nResult:\n" <> response_field <> "\n")
 
-            {{:win, response_field}, state}
+            {:win, state}
 
           :no_win ->
             :gen_tcp.send(opponent.socket, response_field <> "\n")

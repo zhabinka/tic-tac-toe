@@ -208,14 +208,8 @@ defmodule TicTacToe.Session do
             {:ok, state}
         end
 
-      {:error, :wrong_cell_number} ->
-        {{:error, :wrong_cell_number}, state}
-
-      {:error, :impossible_move} ->
-        {{:error, :impossible_move}, state}
-
-      {:error, :move_order_broken} ->
-        {{:error, :move_order_broken}, state}
+      {:error, error} ->
+        {{:error, error}, state}
     end
   end
 

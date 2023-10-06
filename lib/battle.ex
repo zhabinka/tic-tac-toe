@@ -20,7 +20,6 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, {:finish_battle, :win, session})
   end
 
-
   def get_field(battle_pid) do
     GenServer.call(battle_pid, {:get_field})
   end
@@ -97,11 +96,8 @@ defmodule TicTacToe.Battle do
   def handle_call({:make_move, session_pid, cell_number}, _from, state) do
     if state.current_move.session_pid == session_pid do
       case Field.add_move_to_field(state.field, cell_number, state.current_move.sign) do
-        {:error, :impossible_move} ->
-          {:reply, {:error, :impossible_move}, state}
-
-        {:error, :wrong_cell_number} ->
-          {:reply, {:error, :wrong_cell_number}, state}
+        {:error, error} ->
+          {:reply, {:error, error}, state}
 
         {:ok, field} ->
           Logger.info("User #{inspect(state.current_move)} add move #{inspect(field)}")

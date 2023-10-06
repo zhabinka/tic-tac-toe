@@ -190,13 +190,14 @@ defmodule TicTacToe.Session do
 
         case Field.check_who_win(field) do
           {:win, _sign} ->
-            :gen_tcp.send(opponent.socket, resonse_lose)
-
             # TODO : Вместо сессии передать пользователя или anonimus
             Battle.finish_battle(state.battle_pid, :win, state)
-            IO.inspect(Battle.get_state(state.battle_pid))
+            Logger.info(Battle.get_state(state.battle_pid))
 
-            # :gen_tcp.send(opponent.socket, "\nResult:\n" <> response_field <> "\n")
+            :gen_tcp.send(opponent.socket, "Result:\n" <> response_field)
+            :gen_tcp.send(opponent.socket, resonse_lose)
+
+            :gen_tcp.send(state.socket, "Result:\n" <> response_field)
 
             {:win, state}
 

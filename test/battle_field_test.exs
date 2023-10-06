@@ -28,6 +28,9 @@ defmodule Battleest do
 
     assert {:error, :impossible_move} == add_move_to_field(field, 4, :x)
     assert {:error, :impossible_move} == add_move_to_field(field, 7, :x)
+
+    assert {:error, :wrong_cell_number} == add_move_to_field(field, 10, :x)
+    assert {:error, :wrong_cell_number} == add_move_to_field(field, 0, :x)
   end
 
   test "draw field test" do

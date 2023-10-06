@@ -21,7 +21,7 @@ defmodule TicTacToe.Field do
   @spec add_move_to_field(Model.battle_field(), number(), Model.sign()) ::
           {:ok, Model.battle_field()}
   def add_move_to_field(field, cell_number, sign) do
-    if cell_number > 9 do
+    if cell_number > 9 or cell_number < 1 do
       {:error, :wrong_cell_number}
     else
       row_index = div(cell_number - 1, 3)

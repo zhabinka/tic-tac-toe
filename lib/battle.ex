@@ -30,8 +30,8 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, {:get_current_session})
   end
 
-  def get_opponent(battle_pid) do
-    GenServer.call(battle_pid, {:get_opponent})
+  def get_opponent_session(battle_pid) do
+    GenServer.call(battle_pid, {:get_opponent_session})
   end
 
   def make_move(battle_pid, session_pid, cell_number) do
@@ -49,7 +49,6 @@ defmodule TicTacToe.Battle do
       sessions: [],
       field: {{:f, :f, :f}, {:f, :f, :f}, {:f, :f, :f}},
       status: :game_on,
-      opponent: nil,
       current_session: nil,
       winner: nil
     }
@@ -70,7 +69,6 @@ defmodule TicTacToe.Battle do
     state =
       state
       |> Map.put(:sessions, [session1, session2])
-      |> Map.put(:opponent, session2)
       |> Map.put(:current_session, session1)
 
     {:reply, :ok, state}
@@ -82,7 +80,6 @@ defmodule TicTacToe.Battle do
       |> Map.put(:status, :game_over)
       |> Map.put(:winner, session)
       |> Map.put(:current_session, nil)
-      |> Map.put(:opponent, nil)
 
     {:reply, :ok, state}
   end
@@ -94,6 +91,8 @@ defmodule TicTacToe.Battle do
   end
 
   def handle_call({:make_move, session_pid, cell_number}, _from, state) do
+    opponent = do_get_opponent_session(state)
+
     if state.current_session.session_pid == session_pid do
       case Field.add_move_to_field(state.field, cell_number, state.current_session.sign) do
         {:error, error} ->
@@ -101,22 +100,19 @@ defmodule TicTacToe.Battle do
 
         {:ok, field} ->
           Logger.info("User #{inspect(state.current_session)} add move #{inspect(field)}")
-          opponent = state.opponent
-          current_session = state.current_session
 
-          # NOTE : Не очень красиво. Есть ли другой способ добавить несколько значений в структру?
           state =
             state
             |> Map.put(:field, field)
             |> Map.put(:current_session, opponent)
-            |> Map.put(:opponent, current_session)
 
           {:reply, :ok, state}
       end
     else
       # NOTE : Здесь, вроде, сообщение нужно слать в текущую сессию
       # т.е. state.current_session
-      Session.send_event(state.opponent, :waiting_opponent_move)
+
+      Session.send_event(opponent, :waiting_opponent_move)
       {:reply, {:error, :move_order_broken}, state}
     end
   end
@@ -129,8 +125,12 @@ defmodule TicTacToe.Battle do
     {:reply, {:ok, state.current_session}, state}
   end
 
-  def handle_call({:get_opponent}, _from, state) do
-    {:reply, {:ok, state.opponent}, state}
+  # TODO : Add tests
+  def handle_call({:get_opponent_session}, _from, state) do
+    [opponent_session] =
+      Enum.filter(state.sessions, fn s -> s.session_pid != state.current_session.session_pid end)
+
+    {:reply, {:ok, opponent_session}, state}
   end
 
   # Catch all
@@ -151,5 +151,12 @@ defmodule TicTacToe.Battle do
     )
 
     state
+  end
+
+  def do_get_opponent_session(state) do
+    [opponent_session] =
+      Enum.filter(state.sessions, fn s -> s.session_pid != state.current_session.session_pid end)
+
+    opponent_session
   end
 end

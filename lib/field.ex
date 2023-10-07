@@ -14,6 +14,7 @@ defmodule TicTacToe.Field do
       {{_, _, a}, {_, _, a}, {_, _, a}} when a != :f -> {:win, a}
       {{a, _, _}, {_, a, _}, {_, _, a}} when a != :f -> {:win, a}
       {{_, _, a}, {_, a, _}, {a, _, _}} when a != :f -> {:win, a}
+      {{a, b, c}, {d, e, f}, {g, h, i}} when :f not in [a, b, c, d, e, f, g, h, i] -> :draw
       _ -> :no_win
     end
   end

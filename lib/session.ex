@@ -179,9 +179,6 @@ defmodule TicTacToe.Session do
 
     case Battle.make_move(state.battle_pid, state.session_pid, String.to_integer(cell_number)) do
       :ok ->
-        # NOTE : Дилема: слать сообщение через API Session нельзя.
-        # GenServer не может обращаться к своему клиентскому API
-        # Как быть?
         {:ok, opponent} = Battle.get_current_session(state.battle_pid)
         {:ok, field} = Battle.get_field(state.battle_pid)
         response_field = Protocol.serialize({:field, Field.draw_field(field)})

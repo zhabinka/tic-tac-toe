@@ -22,15 +22,15 @@ defmodule Battleest do
   test "add move to field test" do
     field = {{:f, :x, :o}, {:o, :f, :f}, {:x, :f, :f}}
 
-    assert {:ok, {{:f, :x, :o}, {:o, :f, :f}, {:x, :f, :x}}} == add_move_to_field(field, 9, :x)
-    assert {:ok, {{:f, :x, :o}, {:o, :x, :f}, {:x, :f, :f}}} == add_move_to_field(field, 5, :x)
-    assert {:ok, {{:o, :x, :o}, {:o, :f, :f}, {:x, :f, :f}}} == add_move_to_field(field, 1, :o)
+    assert {:ok, {{:f, :x, :o}, {:o, :f, :f}, {:x, :f, :x}}} == make_move(field, 9, :x)
+    assert {:ok, {{:f, :x, :o}, {:o, :x, :f}, {:x, :f, :f}}} == make_move(field, 5, :x)
+    assert {:ok, {{:o, :x, :o}, {:o, :f, :f}, {:x, :f, :f}}} == make_move(field, 1, :o)
 
-    assert {:error, :impossible_move} == add_move_to_field(field, 4, :x)
-    assert {:error, :impossible_move} == add_move_to_field(field, 7, :x)
+    assert {:error, :impossible_move} == make_move(field, 4, :x)
+    assert {:error, :impossible_move} == make_move(field, 7, :x)
 
-    assert {:error, :wrong_cell_number} == add_move_to_field(field, 10, :x)
-    assert {:error, :wrong_cell_number} == add_move_to_field(field, 0, :x)
+    assert {:error, :wrong_cell_number} == make_move(field, 10, :x)
+    assert {:error, :wrong_cell_number} == make_move(field, 0, :x)
   end
 
   test "draw field test" do

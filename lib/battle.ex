@@ -94,7 +94,7 @@ defmodule TicTacToe.Battle do
     opponent = do_get_opponent_session(state)
 
     if state.current_session.session_pid == session_pid do
-      case Field.add_move_to_field(state.field, cell_number, state.current_session.sign) do
+      case Field.make_move(state.field, cell_number, state.current_session.sign) do
         {:error, error} ->
           {:reply, {:error, error}, state}
 

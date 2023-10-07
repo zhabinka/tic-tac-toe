@@ -18,8 +18,7 @@ defmodule TicTacToe.Field do
     end
   end
 
-  @spec make_move(Model.battle_field(), number(), Model.sign()) ::
-          {:ok, Model.battle_field()}
+  @spec make_move(Model.battle_field(), number(), Model.sign()) :: {:ok, Model.battle_field()}
   def make_move(field, cell_number, sign) do
     if cell_number > 9 or cell_number < 1 do
       {:error, :wrong_cell_number}

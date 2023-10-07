@@ -4,6 +4,10 @@ defmodule TicTacToe.BattleManager do
 
   alias TicTacToe.{Battle, BattleSup}
 
+  defmodule State do
+    defstruct [:battle_pid, :session]
+  end
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, :no_args, name: __MODULE__)
   end
@@ -14,10 +18,8 @@ defmodule TicTacToe.BattleManager do
 
   @impl true
   def init(_) do
-    state = %{}
-
-    Logger.info("BattleManager has started with state #{inspect(state)}")
-    {:ok, state}
+    Logger.info("BattleManager has started with #{inspect(%State{})}")
+    {:ok, %State{}}
   end
 
   @impl true
@@ -31,7 +33,7 @@ defmodule TicTacToe.BattleManager do
       :error ->
         {:ok, battle_pid} = BattleSup.create_battle()
         Logger.info("BattleManager create Battle #{inspect(battle_pid)}")
-        state = %{battle_pid: battle_pid, session: session}
+        state = %State{battle_pid: battle_pid, session: session}
         {:reply, {:ok, battle_pid, :waiting_for_opponent}, state}
     end
   end

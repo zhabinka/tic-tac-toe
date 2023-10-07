@@ -10,9 +10,8 @@ defmodule TicTacToe.Model do
     @type t() :: %__MODULE__{
             id: pos_integer(),
             name: String.t(),
-            sign: Model.sign()
           }
-    defstruct [:id, :name, :sign]
+    defstruct [:id, :name]
   end
 
   defmodule Battle do

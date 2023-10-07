@@ -6,7 +6,7 @@ defmodule TicTacToeTest do
 
   def get_users() do
     [
-      %User{id: 1, name: "Alex", sign: :cross},
+      %User{id: 1, name: "Alex"},
       %User{id: 2, name: "John"},
       %User{id: 3, name: "Anna"}
     ]

@@ -39,7 +39,7 @@ defmodule TicTacToe.Battle do
   end
 
   def broadcast(battle_pid, event) do
-    IO.puts("Battle broadcast #{inspect(battle_pid)}, event #{inspect(event)}")
+    Logger.info("Battle broadcast #{inspect(battle_pid)}, event #{inspect(event)}")
     GenServer.call(battle_pid, {:broadcast, event})
   end
 
@@ -85,7 +85,7 @@ defmodule TicTacToe.Battle do
   end
 
   def handle_call({:broadcast, event}, _from, state) do
-    IO.puts("Battle call :broadcast #{inspect(event)}")
+    Logger.info("Battle call :broadcast #{inspect(event)}")
     state = do_broadcast(event, state)
     {:reply, :ok, state}
   end
@@ -145,7 +145,7 @@ defmodule TicTacToe.Battle do
     Enum.each(
       state.sessions,
       fn session ->
-        IO.puts("do_broadcast each: #{inspect(session)}, event #{inspect(event)}")
+        Logger.info("do_broadcast each: #{inspect(session)}, event #{inspect(event)}")
         Session.send_event(session, event)
       end
     )

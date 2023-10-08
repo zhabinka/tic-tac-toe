@@ -149,7 +149,7 @@ defmodule TicTacToe.Session do
   end
 
   defp handle_event(:play, state) do
-    IO.puts("handle_event :play")
+    Logger.info("handle_event :play")
 
     case BattleManager.create_battle(state) do
       {:ok, battle_pid, :waiting_for_opponent} ->

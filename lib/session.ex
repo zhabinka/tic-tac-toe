@@ -184,6 +184,7 @@ defmodule TicTacToe.Session do
         response_field = Protocol.serialize({:field, Field.draw_field(field)})
         response_move = Protocol.serialize(:move)
         resonse_lose = Protocol.serialize(:lose)
+        resonse_draw = Protocol.serialize(:draw)
 
         case Field.check_who_win(field) do
           {:win, _sign} ->
@@ -197,6 +198,17 @@ defmodule TicTacToe.Session do
             :gen_tcp.send(state.socket, "Result:\n" <> response_field)
 
             {:win, state}
+
+          :draw ->
+            Battle.finish_battle(state.battle_pid, :draw, state)
+            Logger.info(Battle.get_state(state.battle_pid))
+
+            :gen_tcp.send(opponent.socket, "Result:\n" <> response_field)
+            :gen_tcp.send(opponent.socket, resonse_draw)
+
+            :gen_tcp.send(state.socket, "Result:\n" <> response_field)
+
+            {:draw, state}
 
           :no_win ->
             :gen_tcp.send(opponent.socket, response_field <> "\n")

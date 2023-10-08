@@ -20,6 +20,10 @@ defmodule TicTacToe.Battle do
     GenServer.call(battle_pid, {:finish_battle, :win, session})
   end
 
+  def finish_battle(battle_pid, :draw, session) do
+    GenServer.call(battle_pid, {:finish_battle, :win, session})
+  end
+
   def get_field(battle_pid) do
     GenServer.call(battle_pid, {:get_field})
   end
@@ -79,6 +83,16 @@ defmodule TicTacToe.Battle do
       state
       |> Map.put(:status, :game_over)
       |> Map.put(:winner, session)
+      |> Map.put(:current_session, nil)
+
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:finish_battle, :draw, _session}, _from, state) do
+    state =
+      state
+      |> Map.put(:status, :game_over)
+      # |> Map.put(:winner, session)
       |> Map.put(:current_session, nil)
 
     {:reply, :ok, state}

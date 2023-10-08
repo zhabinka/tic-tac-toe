@@ -18,23 +18,25 @@ defmodule TicTacToe.BattleManager do
 
   @impl true
   def init(_) do
-    Logger.info("BattleManager has started with #{inspect(%State{})}")
-    {:ok, %State{}}
+    state = %State{}
+
+    Logger.info("BattleManager has started with #{inspect(state)}")
+    {:ok, state}
   end
 
   @impl true
   def handle_call({:create_battle, session}, _from, state) do
     case Map.fetch(state, :battle_pid) do
-      {:ok, battle_pid} ->
-        Battle.prepare_battle(battle_pid, state.session, session)
-        Logger.info("BattleManager prepare battle #{inspect(battle_pid)}")
-        {:reply, {:ok, battle_pid}, %{}}
-
-      :error ->
+      {:ok, nil} ->
         {:ok, battle_pid} = BattleSup.create_battle()
         Logger.info("BattleManager create Battle #{inspect(battle_pid)}")
         state = %State{battle_pid: battle_pid, session: session}
         {:reply, {:ok, battle_pid, :waiting_for_opponent}, state}
+
+      {:ok, battle_pid} ->
+        Battle.prepare_battle(battle_pid, state.session, session)
+        Logger.info("BattleManager prepare battle #{inspect(battle_pid)}")
+        {:reply, {:ok, battle_pid}, %State{}}
     end
   end
 
